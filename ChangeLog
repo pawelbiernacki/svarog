@@ -1,0 +1,14 @@
+YYYY-MM-DD
+2019-12-10	begin
+2020-01-02	release 0.0.0
+2020-01-27	changing the name to "svarog"
+2020-09-26	supporting unary minus (negative float and int literals)
+			expressions and logical expressions remember the line number
+2020-09-28	release 0.0.2
+2020-10-02	svarog-daemon, svarog-dummy-client
+			commands input, action, belief
+2020-10-03	command solve
+2020-10-04	optimizer tasks
+			release 0.0.3
+2020-10-06	fixing some client-server problems
+

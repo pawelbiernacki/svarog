@@ -1,0 +1,7 @@
+none place_Wyzima false false false
+none place_Novigrad false true false
+none place_Shadizar true false false
+none place_Shadizar true false true
+none place_Novigrad true true true
+true place_Novigrad true true true
+false place_Novigrad true true false
