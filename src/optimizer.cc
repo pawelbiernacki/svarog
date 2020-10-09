@@ -150,7 +150,7 @@ optimizer::optimizer(): a(v, w), vs(v, w, a),
 	initial_input{nullptr}, 
 	initial_action{nullptr}, 
 	initial_belief{nullptr},
-	last_solution{std::numeric_limits<float>::min()},
+	last_solution{std::numeric_limits<float>::lowest()},
 	file_counter{1}
 {
 	rl_attempted_completion_function = kuna_completer;
@@ -550,7 +550,7 @@ float optimizer::solve(int n)
 	evaluating_expressions_mode = GET_IS_ILLEGAL;
 		
 	if (b->get_visible_state().get_is_illegal(a))
-		return std::numeric_limits<float>::min();
+		return std::numeric_limits<float>::lowest();
 	
 	float m = get_payoff_expected_value_for_consequences(*b, n, *a);
 	return m;
@@ -706,7 +706,7 @@ std::string optimizer::get_partial_task_specification(const belief & b, int n, c
 
 const action * optimizer::get_optimal_action_using_servers(const belief & b, int n)
 {
-	float max = std::numeric_limits<float>::min();
+	float max = std::numeric_limits<float>::lowest();
 	const action * argmax = nullptr;
 	try
 	{
@@ -775,7 +775,7 @@ const action * optimizer::get_optimal_action_using_servers(const belief & b, int
 		float m = 0.0;
 		
 		response_stream >> m;
-		
+				
 		if (!response_stream.bad() && (m > max || argmax==nullptr))
 		{
 			max = m;
@@ -790,7 +790,7 @@ const action * optimizer::get_optimal_action_using_servers(const belief & b, int
 
 const action * optimizer::get_optimal_action(const belief & b, int n)
 {
-	float max = std::numeric_limits<float>::min();
+	float max = std::numeric_limits<float>::lowest();
 	action * argmax = NULL;
 	std::list<action*>::const_iterator i(a.get_list_of_actions().begin());
 	
