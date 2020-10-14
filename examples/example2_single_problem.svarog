@@ -329,9 +329,9 @@ can_dorban_see_vampire=>false, is_pregor_following_dorban=>false}: 0.250000;
 };
 
 
-action {optimal_action=>goto_Novigrad};
+action {optimal_action=>goto_Wyzima};
 
 
 solve(4);
 
-#cout << result << eol;
+cout << result << eol;

@@ -454,6 +454,9 @@ test2:
 test3:
 	svarog example1_dorban.svarog < example1_dorban_input3.txt
 
+test4:
+	svarog example3_dorban.svarog < example3_dorban_input1.txt
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
