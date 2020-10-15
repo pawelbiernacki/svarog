@@ -1,0 +1,8 @@
+none place_Krakow true true false false
+none place_Krakow true true false true
+none place_Warszawa true true false true
+none place_Poznan true true true true
+true place_Poznan true true true true
+false place_Poznan true true true false
+none place_Poznan true true true true
+false place_Poznan true false true false

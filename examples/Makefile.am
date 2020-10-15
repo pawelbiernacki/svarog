@@ -13,3 +13,6 @@ test3:
 
 test4:
 	svarog example3_dorban.svarog < example3_dorban_input1.txt
+
+test5:
+	svarog example3_dorban.svarog < example3_dorban_input2.txt
