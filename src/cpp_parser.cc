@@ -205,6 +205,7 @@ const cpp_parser::token_and_name cpp_parser::array_of_tokens_and_names[] =
 	{ T_BELIEF, "T_BELIEF" },
 	{ T_SOLVE, "T_SOLVE" },
 	{ T_RESULT, "T_RESULT" },
+	{ T_PRECALCULATE, "T_PRECALCULATE" },
 	{ 0, "EOF" }
 };
 
@@ -1990,6 +1991,56 @@ int cpp_parser::parse_commands()
 			{
 				command_cout_result * c = new command_cout_result();
 				((optimizer*)kuna_optimizer)->add_command(c);
+			}
+			else
+			if (i == T_PRECALCULATE)
+			{
+				i = lex();
+				if (i != '(')
+				{
+					PARSING_ERROR(i, "(");
+					return -1;
+				}
+				
+				i = lex();
+				if (i != T_INT_LITERAL)
+				{
+					PARSING_ERROR(i, "int literal");
+					return -1;
+				}
+				int depth = yylval.value_int;
+				
+				i = lex();
+				if (i != ',')
+				{
+					PARSING_ERROR(i, ",");
+					return -1;
+				}
+
+				i = lex();
+				if (i != T_INT_LITERAL)
+				{
+					PARSING_ERROR(i, "int literal");
+					return -1;
+				}
+				
+				if (yylval.value_int < 2)
+				{
+					PARSING_ERROR(i, "granularity (second argument) should be >=2");
+					return -1;
+				}
+				
+				command_cout_precalculate * c = new command_cout_precalculate(depth, yylval.value_int);
+				((optimizer*)kuna_optimizer)->add_command(c);
+
+
+				i = lex();
+				if (i != ')')
+				{
+					PARSING_ERROR(i, ")");
+					return -1;
+				}
+				
 			}
 			else
 			{

@@ -68,14 +68,20 @@ bool visible_state::get_match(const std::map<variable*, value*> & m) const
 
 void visible_state::report_kuna(std::ostream & s) const
 {
+	bool first = true;
+	s << "{";
+	
 	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
 		 i != my_variables.get_vector_of_variables().end(); i++)
 	{
 		if ((*i)->get_is_input_variable())
 		{
+			if (!first) s << ",";
 			s << (*i)->get_name() << "=>" << map_input_variable_to_value.at(*i)->get_name() << " ";
+			first = false;
 		}
 	}
+	s << "}";
 	//s << "contains " << list_of_states.size() << " states\n";
 	
 }

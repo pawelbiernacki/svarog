@@ -153,7 +153,8 @@ am_libsvarog_la_OBJECTS = scanner.lo cpp_parser.lo optimizer.lo \
 	command_test_with_query.lo knowledge_payoff.lo \
 	configuration.lo configuration_scanner.lo \
 	configuration_parser.lo command_input.lo command_action.lo \
-	command_belief.lo command_solve.lo command_cout_result.lo
+	command_belief.lo command_solve.lo command_cout_result.lo \
+	command_cout_precalculate.lo
 libsvarog_la_OBJECTS = $(am_libsvarog_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -408,7 +409,8 @@ libsvarog_la_SOURCES = scanner.l cpp_parser.cc optimizer.cc kuna_c.cc collection
 	expression_value.cc knowledge_impossible.cc command_cout_perkun.cc command_test.cc \
 	command_test_with_query.cc knowledge_payoff.cc configuration.cc \
 	configuration_scanner.l configuration_parser.cc command_input.cc command_action.cc \
-	command_belief.cc command_solve.cc command_cout_result.cc
+	command_belief.cc command_solve.cc command_cout_result.cc \
+	command_cout_precalculate.cc
 
 svarog_LDADD = libsvarog.la @LIBREADLINE@ 
 svarog_daemon_LDADD = libsvarog.la @LIBREADLINE@ 
@@ -567,6 +569,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_belief.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_knowledge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_perkun.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_precalculate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_result.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_states.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_cout_visible_states.Plo@am__quote@

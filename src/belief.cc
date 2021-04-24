@@ -22,17 +22,19 @@ using namespace svarog;
 
 void belief::report_kuna(std::ostream & s) const
 {
-	s << "belief:\n";
+	s << "{\n";
 	for (std::list<state*>::const_iterator i(my_visible_state.get_list_of_states().begin()); 
 		 i!=my_visible_state.get_list_of_states().end(); i++)
 	{
 		if (map_state_to_probability.at(*i) > 0.0f)
 		{
+			s << "case ";
 			(*i)->report_kuna(s);
-			s << std::showpoint << map_state_to_probability.at(*i) << "\n";
+			s << ":";
+			s << std::showpoint << map_state_to_probability.at(*i) << ";\n";
 		}
 	}
-	s << "end of belief\n";
+	s << "}\n";
 }
 
 float belief::get_probability(state * s) const
@@ -44,6 +46,20 @@ float belief::get_probability(state * s) const
 	
 	return map_state_to_probability.at(s);
 }
+
+
+void belief::set_probability(state * s, float p) 
+{ 
+	if (map_state_to_probability.find(s) == map_state_to_probability.end())
+	{
+		map_state_to_probability.insert(std::pair<state*,float>(s, p)); 
+	}
+	else
+	{
+		map_state_to_probability.at(s) = p;
+	}
+}
+
 
 void belief::make_uniform()
 {

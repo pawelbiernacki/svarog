@@ -947,6 +947,8 @@ public:
 		void populate_map(std::map<variable*, value*> & target);
 		
 		bool get_possible() const;
+		
+		const std::string get_why_is_impossible() const;
 	};
 	
 	class collection_of_visible_states;
@@ -1101,7 +1103,7 @@ public:
 		belief(visible_state & v, optimizer & o): my_visible_state(v), my_optimizer(o) {}
 		float get_probability(state * s) const;
 	
-		void set_probability(state * s, float p) { map_state_to_probability.insert(std::pair<state*,float>(s, p)); }
+		void set_probability(state * s, float p);
 	
 		void set_probability(const std::map<variable*, value*> & query, float p) 
 		{
@@ -1230,13 +1232,30 @@ public:
 	class command_loop: public command
 	{
 		private:
-		int depth;
+		const int depth;
 		
 		public:
 		command_loop(int d): depth(d) {}
 		virtual void execute(optimizer & o) const;
 		
 		virtual bool get_is_interactive() const;
+	};
+	
+	class command_cout_precalculate: public command
+	{
+		private:
+		const int depth, granularity;
+		
+		bool get_any_state_is_possible(const visible_state & x, optimizer & o) const;
+		
+		void dump_map_state_to_count(const visible_state & x, const std::map<state*,int> & map_state_to_count) const;
+		
+		void create_next_belief(belief & b, std::map<state*,int> & map_state_to_count, bool & done, bool & skip, optimizer & o) const;
+				
+		public:
+		command_cout_precalculate(int d, int g): 
+			depth{d}, granularity{g} {} 
+		virtual void execute(optimizer & o) const;
 	};
 	
 	class command_cout_knowledge: public command

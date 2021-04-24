@@ -24,7 +24,8 @@ libsvarog_la_SOURCES = scanner.l cpp_parser.cc optimizer.cc kuna_c.cc collection
 	expression_value.cc knowledge_impossible.cc command_cout_perkun.cc command_test.cc \
 	command_test_with_query.cc knowledge_payoff.cc configuration.cc \
 	configuration_scanner.l configuration_parser.cc command_input.cc command_action.cc \
-	command_belief.cc command_solve.cc command_cout_result.cc
+	command_belief.cc command_solve.cc command_cout_result.cc \
+	command_cout_precalculate.cc
 
 svarog_LDADD = libsvarog.la @LIBREADLINE@ 
 

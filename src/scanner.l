@@ -124,6 +124,7 @@ IDENTIFIER		{LETTER}({LETTER_OR_DIGIT})*
 "belief"				{ return T_BELIEF; }
 "solve"					{ return T_SOLVE; }
 "result"				{ return T_RESULT; }
+"precalculate"			{ return T_PRECALCULATE; }
 
 {IDENTIFIER}  			{ yylval_param->value_string = strdup(yytext); return T_IDENTIFIER; }
 

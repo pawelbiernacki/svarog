@@ -75,15 +75,45 @@ bool state::get_match(const std::map<variable*, value*> & m) const
 
 void state::report_kuna(std::ostream & s) const
 {
+	bool first = true;
+	s << "{";
 	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
 		 i != my_variables.get_vector_of_variables().end(); i++)
 	{
 		if ((*i)->get_is_hidden_variable())
 		{
+			if (!first) s << ",";
 			s << (*i)->get_name() << "=>" << map_hidden_variable_to_value.at(*i)->get_name() << " ";
+			first = false;
 		}
 	}
-	my_visible_state.report_kuna(s);
+	/*
+	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
+		 i != my_variables.get_vector_of_variables().end(); i++)
+	{
+		if ((*i)->get_is_input_variable())
+		{
+			if (!first) s << ",";
+			s << (*i)->get_name() << "=>" << my_visible_state.get_input_variable_value(*i)->get_name() << " ";
+			first = false;
+		}
+	}
+	*/
+	//my_visible_state.report_kuna(s);
+	s << "}";
+}
+
+
+const std::string state::get_why_is_impossible() const
+{
+	for (std::list<knowledge_impossible*>::const_iterator i(my_optimizer.list_of_knowledge_impossibles.begin()); i!=my_optimizer.list_of_knowledge_impossibles.end(); i++)
+	{		
+		if (!(*i)->get_possible(my_optimizer))
+		{
+			return (*i)->get_name();
+		}
+	}
+	return "I don't know";
 }
 
 
