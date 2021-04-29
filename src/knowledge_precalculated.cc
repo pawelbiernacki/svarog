@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2019 by Pawel Biernacki                                 *
+ *   Copyright (C) 2021 by Pawel Biernacki                                 *
  *   pawel.f.biernacki@gmail.com                                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,35 +20,33 @@
 #include "svarog.h"
 using namespace svarog;
 
-
-void action::report_kuna(std::ostream & s) const
+knowledge_precalculated::~knowledge_precalculated()
 {
-	bool first = true;
-	s << "{";
-	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
-		 i != my_variables.get_vector_of_variables().end(); i++)
+	for (auto i(list_of_objects_on_visible_state.begin()); i != list_of_objects_on_visible_state.end(); ++i)
 	{
-		if ((*i)->get_is_output_variable())
-		{
-			if (!first) s << ",";
-			s << (*i)->get_name() << "=>" << map_output_variable_to_value.at(*i)->get_name() << " ";
-			first = false;
-		}
+		delete *i;
 	}
-	s << "}";
+	list_of_objects_on_visible_state.clear();
 }
 
 
-bool action::get_match(const std::map<variable*, value*> & m) const
+knowledge_precalculated::on_visible_state::~on_visible_state()
 {
-	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
-		 i != my_variables.get_vector_of_variables().end(); i++)
+	for (auto i(list_of_objects_on_belief.begin()); i!=list_of_objects_on_belief.end(); ++i)
 	{
-		if ((*i)->get_is_output_variable())
-		{
-			if (map_output_variable_to_value.at(*i) != m.at(*i))
-				return false;
-		}
+		delete *i;
 	}
-	return true;
+	list_of_objects_on_belief.clear();
+	delete my_query;
 }
+
+knowledge_precalculated::on_visible_state::on_belief::~on_belief()
+{
+	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
+	{
+		delete *i;
+	}
+	list_of_belief_cases.clear();
+	delete my_action_query;
+}
+

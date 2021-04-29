@@ -699,6 +699,85 @@ public:
 		virtual bool get_is_illegal() const { return true; }
 	};
 	
+	
+	/**
+	 * The precalculated knowledge is produced by the command
+	 * cout << precalculate(<depth>,<granularity>) << eol;
+	 * 
+	 * It contains some rules based on the analysis of the specification.
+	 * This should improve the performance.
+	 */
+	class knowledge_precalculated
+	{
+		public:
+		class on_visible_state
+		{
+			public:
+			class on_belief
+			{
+			public:
+				class belief_case
+				{
+				private:
+					const float probability;
+					query * my_query;
+				public:
+					belief_case(float p, query * q): probability{p}, my_query{q} {}
+					~belief_case()
+					{
+						delete my_query;
+					}
+					const query* get_query() const { return my_query; }
+					float get_probability() const { return probability; }
+				};
+			private:
+				std::list<belief_case*> list_of_belief_cases;
+				query * my_action_query;
+			public:
+				on_belief(): my_action_query{nullptr} {}
+				~on_belief();
+				void add_belief_case(belief_case * i) { list_of_belief_cases.push_back(i); }
+				void set_action_query(query * q) { my_action_query = q; }
+				
+				const std::list<belief_case*>& get_list_of_belief_cases() const 
+				{ return list_of_belief_cases; }
+				const query * get_action_query() const { return my_action_query; }
+			};
+			private:
+			query * my_query;
+			
+			std::list<on_belief *> list_of_objects_on_belief;
+			
+			public:
+				
+			on_visible_state(query * q): my_query(q) {}
+			~on_visible_state();
+			
+			void add_on_belief(on_belief * i) { list_of_objects_on_belief.push_back(i); }
+			
+			const std::list<on_belief*> & get_list_of_objects_on_belief() const
+			{ return list_of_objects_on_belief; }
+		};
+		
+		private:
+		std::list<on_visible_state*> list_of_objects_on_visible_state;
+		const int depth, granularity;
+		
+		public:
+		knowledge_precalculated(int d, int g): depth{d}, granularity{g} {}
+		~knowledge_precalculated();
+		
+		int get_depth() const { return depth; }
+		
+		int get_granularity() const { return granularity; }
+		
+		void add_on_visible_state(on_visible_state * o) 
+		{ list_of_objects_on_visible_state.push_back(o); }
+		
+		const std::list<on_visible_state*> & get_list_of_objects_on_visible_state() const
+		{ return list_of_objects_on_visible_state; }
+	};
+	
 	class knowledge_impossible
 	{
 		private:
@@ -1243,19 +1322,41 @@ public:
 	
 	class command_cout_precalculate: public command
 	{
-		private:
+		protected:
 		const int depth, granularity;
+
+		/**
+		 * This limit sets the max amount of beliefs that are considered.
+		 * If the amount of beliefs exceeds it the whole visible state
+		 * will be marked as "too complex" and not precalculated.
+		 */
+		static constexpr int amount_of_beliefs_limit = 1024;
+		
+		float get_amount_of_possible_states(const visible_state & x, optimizer & o) const;
+		
+		float get_max_amount_of_beliefs(const visible_state & x, optimizer & o) const;
 		
 		bool get_any_state_is_possible(const visible_state & x, optimizer & o) const;
 		
 		void dump_map_state_to_count(const visible_state & x, const std::map<state*,int> & map_state_to_count) const;
 		
 		void create_next_belief(belief & b, std::map<state*,int> & map_state_to_count, bool & done, bool & skip, optimizer & o) const;
-				
+		
+		virtual void on_belief(belief & b, optimizer & o) const;
+
 		public:
 		command_cout_precalculate(int d, int g): 
 			depth{d}, granularity{g} {} 
 		virtual void execute(optimizer & o) const;
+	};
+
+	class command_cout_estimate_beliefs: public command_cout_precalculate
+	{
+		protected:
+		virtual void on_belief(belief & b, optimizer & o) const override;
+
+		public:
+		command_cout_estimate_beliefs(int d, int g): command_cout_precalculate{d, g} {}
 	};
 	
 	class command_cout_knowledge: public command
@@ -1437,6 +1538,8 @@ public:
 		
 		std::list<knowledge_payoff*> list_of_knowledge_payoffs; // owned
 		
+		std::list<knowledge_precalculated*> list_of_knowledge_precalculated; // owned
+		
 		std::vector<command*> vector_of_commands; // owned
 		
 		std::list<variable*> list_of_input_variables; // not owned
@@ -1522,6 +1625,8 @@ public:
 		void add_knowledge_impossible(knowledge_impossible * i);
 		
 		void add_knowledge_payoff(knowledge_payoff * p);
+		
+		void add_knowledge_precalculated(knowledge_precalculated * p);
 		
 		void make_model();
 		

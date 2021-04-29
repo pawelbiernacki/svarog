@@ -75,6 +75,7 @@ IDENTIFIER		{LETTER}({LETTER_OR_DIGIT})*
 "=>"					return T_EQUAL_GREATER;
 "<<"					return T_SHIFT_LEFT;
 "=="                    return T_EQUAL_EQUAL;
+"="						return '=';
      
 "hidden"				{ return T_HIDDEN; }
 "input"					{ return T_INPUT; }
@@ -124,11 +125,18 @@ IDENTIFIER		{LETTER}({LETTER_OR_DIGIT})*
 "belief"				{ return T_BELIEF; }
 "solve"					{ return T_SOLVE; }
 "result"				{ return T_RESULT; }
+"precalculated"			{ return T_PRECALCULATED; }
 "precalculate"			{ return T_PRECALCULATE; }
+"estimate"				{ return T_ESTIMATE; }
+"on"					{ return T_ON; }
+"too"					{ return T_TOO; }
+"complex"				{ return T_COMPLEX; }
 
 {IDENTIFIER}  			{ yylval_param->value_string = strdup(yytext); return T_IDENTIFIER; }
 
--?{DIGIT}+\.{DIGIT}+		{ yylval_param->value_float = atof(yytext); return T_FLOAT_LITERAL; }
+-?{DIGIT}+\.{DIGIT}+e(-|\+){DIGIT}+	{ yylval_param->value_float = atof(yytext); return T_FLOAT_LITERAL; }
+
+-?{DIGIT}+\.{DIGIT}+	{ yylval_param->value_float = atof(yytext); return T_FLOAT_LITERAL; }
 
 -?{DIGIT}+				{ yylval_param->value_int = atoi(yytext); return T_INT_LITERAL; }
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2019 by Pawel Biernacki                                 *
+ *   Copyright (C) 2021 by Pawel Biernacki                                 *
  *   pawel.f.biernacki@gmail.com                                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,37 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "svarog.h"
+#include "config.h"
 using namespace svarog;
 
 
-void action::report_kuna(std::ostream & s) const
+void command_cout_estimate_beliefs::on_belief(belief & b, optimizer & o) const
 {
-	bool first = true;
-	s << "{";
-	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
-		 i != my_variables.get_vector_of_variables().end(); i++)
-	{
-		if ((*i)->get_is_output_variable())
-		{
-			if (!first) s << ",";
-			s << (*i)->get_name() << "=>" << map_output_variable_to_value.at(*i)->get_name() << " ";
-			first = false;
-		}
-	}
-	s << "}";
-}
-
-
-bool action::get_match(const std::map<variable*, value*> & m) const
-{
-	for (std::vector<variable*>::const_iterator i(my_variables.get_vector_of_variables().begin());
-		 i != my_variables.get_vector_of_variables().end(); i++)
-	{
-		if ((*i)->get_is_output_variable())
-		{
-			if (map_output_variable_to_value.at(*i) != m.at(*i))
-				return false;
-		}
-	}
-	return true;
+	// do nothing
 }

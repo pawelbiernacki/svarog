@@ -51,6 +51,45 @@ bool command_cout_precalculate::get_any_state_is_possible(const visible_state & 
 }
 
 
+float command_cout_precalculate::get_amount_of_possible_states(const visible_state & x, optimizer & o) const
+{
+	float result = 0.0;
+	for (auto j(x.get_list_of_states().begin()); 
+		 j!=x.get_list_of_states().end(); j++)
+	{
+		o.evaluating_expressions_mode = optimizer::GET_POSSIBLE;
+		o.get_possible_state1 = *j;
+		o.get_possible_state2 = NULL;
+
+		if ((*j)->get_possible())
+		{
+			result += 1.0;
+		}
+	}
+	return result;
+}
+
+float command_cout_precalculate::get_max_amount_of_beliefs(const visible_state & x, optimizer & o) const
+{
+	float result = 1.0;
+	for (auto j(x.get_list_of_states().begin()); 
+		 j!=x.get_list_of_states().end(); j++)
+	{
+		o.evaluating_expressions_mode = optimizer::GET_POSSIBLE;
+		o.get_possible_state1 = *j;
+		o.get_possible_state2 = NULL;
+
+		if ((*j)->get_possible())
+		{
+			result *= granularity;
+		}
+	}
+		
+	return result - 1.0;
+}
+
+
+
 void command_cout_precalculate::create_next_belief(belief & b, std::map<state*,int> & map_state_to_count, bool & done, bool & skip, optimizer & o) const
 {
 	for (auto j(b.get_visible_state().get_list_of_states().begin()); 
@@ -126,6 +165,22 @@ void command_cout_precalculate::create_next_belief(belief & b, std::map<state*,i
 	}
 }
 
+
+void command_cout_precalculate::on_belief(belief & b, optimizer & o) const
+{
+	const action * a = o.get_optimal_action(b, depth);
+				
+	if (a == nullptr)
+	{
+		std::cerr << "no optimal action found\n";
+		exit(-1);
+	}
+			
+	std::cout << "		action ";
+	a->report_kuna(std::cout);
+	std::cout << ";\n";
+}
+
 void command_cout_precalculate::execute(optimizer & o) const
 {
 	std::cout << "#!svarog\n";
@@ -135,16 +190,68 @@ void command_cout_precalculate::execute(optimizer & o) const
 	std::cout << "# granularity = " << granularity << "\n";
 	
 	std::cout << "values\n{\n";
+	std::cout << "value ";
+	
+	bool first = true;
+	
+	for (auto i(o.w.get_vector_of_values().begin()); i!=o.w.get_vector_of_values().end(); i++)
+	{
+		if (!first) std::cout << ",";
+		std::cout << (*i)->get_name();
+		first = false;
+	}
+	std::cout << ";\n";
+
 	std::cout << "}\n";
 	
 	std::cout << "variables\n{\n";
+	
+	for (auto i(o.v.get_vector_of_variables().begin()); i!=o.v.get_vector_of_variables().end(); i++)
+	{
+		std::cout << (*i)->get_type_name() << " variable " << (*i)->get_name() << ":{";
+		first = true;
+		for (std::list<const value*>::const_iterator j((*i)->get_list_of_possible_values().begin());
+			 j != (*i)->get_list_of_possible_values().end(); j++)
+			 {
+				 if (!first) std::cout << ",";
+				 std::cout << (*j)->get_name();
+				 first = false;
+			 }
+		std::cout << "};\n";
+	}
+
 	std::cout << "}\n";
 	
 	std::cout << "knowledge\n"
 				<< "{\n";
-	std::cout << "precalculated\n"
-				<< "{\n";
+				
+	for (auto i(o.list_of_knowledge_actions.begin()); i!= o.list_of_knowledge_actions.end(); i++)
+	{
+		(*i)->report_kuna(std::cout);
+	}
 	
+	for (auto i(o.f.get_vector_of_functions().begin()); i!=o.f.get_vector_of_functions().end(); i++)
+	{
+		(*i)->report_kuna(std::cout);
+		std::cout << "\n";
+	}
+
+	for (auto i(o.list_of_knowledge_impossibles.begin()); i!=o.list_of_knowledge_impossibles.end(); i++)
+	{
+		(*i)->report_kuna(std::cout);
+		std::cout << "\n";
+	}
+
+	for (auto i(o.list_of_knowledge_payoffs.begin()); i!=o.list_of_knowledge_payoffs.end(); i++)
+	{
+		(*i)->report_kuna(std::cout);
+		std::cout << "\n";
+	}
+
+				
+	std::cout << "precalculated (" << depth << "," << granularity << ")\n"
+				<< "{\n";
+					
 	for (auto i(o.vs.get_list_of_visible_states().begin()); i!=o.vs.get_list_of_visible_states().end(); ++i)
 	{
 		if (!get_any_state_is_possible(**i, o))
@@ -156,7 +263,19 @@ void command_cout_precalculate::execute(optimizer & o) const
 		(*i)->report_kuna(std::cout);
 		std::cout << ")\n	{\n";
 		
-		// for each possible state there is <granularity> values (0..x)
+		float amount_of_possible_states = get_amount_of_possible_states(**i, o);
+		float max_amount_of_beliefs = get_max_amount_of_beliefs(**i, o);
+		
+		std::cout << "amount_of_possible_states = " << amount_of_possible_states << ";\n";
+		std::cout << "max_amount_of_beliefs = " << max_amount_of_beliefs << ";\n";		
+		
+		if (max_amount_of_beliefs > amount_of_beliefs_limit)
+		{
+			std::cout << "too complex;\n";
+			std::cout << "	}\n";
+			continue;
+		}
+		
 		
 		belief b(**i, o);
 		
@@ -182,13 +301,14 @@ void command_cout_precalculate::execute(optimizer & o) const
 				std::cout << "on belief (";
 				b.report_kuna(std::cout);
 				std::cout << ")\n		{\n";
-			
-				std::cout << "		action {output_action=>do_nothing};\n";
-				std::cout << "		}\n";
+				
+				on_belief(b, o);	
+
+				std::cout << "		}\n";				
 			}
 		}
 		while (!done);
-				
+						
 		std::cout << "	}\n";
 	}
 	

@@ -1,0 +1,18 @@
+version 0.0.4:
+	svarog has a new command:
+
+	cout << precalculate(depth,granularity) << eol;
+
+	It is creating a Svarog specification containing precalculated knowledge
+	and printing it out to the standard output.
+	The depth is the "intelligence level" (the game tree depth) - just like in the loop command.
+	Granularity is the amount of probability values for a single state in the belief, it should
+	be small (2 is a good choice). It must not be 1 or smaller.
+	
+	After parsing a specification with the precalculated knowledge Svarog
+	will be able to use it as a cache.
+
+	If the amount of the beliefs after the discretization of the belief set exceeds 1024
+	then the visible state is marked as "too complex" and not considered in the precalculations.
+	Each visible state is checked individually, its impossible states are not taken into account when doing the precalculations.
+	

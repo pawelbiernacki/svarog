@@ -1,0 +1,812 @@
+#!svarog
+
+values
+{
+	value false, true, none;
+	value place_Warszawa,place_Krakow,place_Wroclaw,place_Gdansk,place_Poznan;
+	value ask_pregor_to_follow_dorban, attack_vampire;
+	value goto_Warszawa,goto_Krakow,goto_Wroclaw,goto_Gdansk,goto_Poznan;
+}
+
+
+variables
+{
+	input variable has_dorban_won_a_fight:{false, true, none};
+	input variable where_is_dorban:{place_Warszawa,place_Krakow,place_Wroclaw,place_Gdansk,place_Poznan};
+	input variable can_dorban_see_pregor:{false, true};
+	input variable can_dorban_see_pregor_is_alive:{false, true, none};
+	input variable can_dorban_see_vampire:{false, true};
+	
+	input variable is_pregor_following_dorban:{false, true};
+	
+	hidden variable where_is_vampire:{place_Warszawa,place_Krakow,place_Wroclaw,place_Gdansk,place_Poznan};
+	hidden variable where_is_pregor:{place_Warszawa,place_Krakow,place_Wroclaw,place_Gdansk,place_Poznan};
+	hidden variable is_pregor_alive:{false,true};
+	
+	output variable optimal_action:{
+		ask_pregor_to_follow_dorban, 
+		attack_vampire, 
+		goto_Warszawa,goto_Krakow,goto_Wroclaw,goto_Gdansk,goto_Poznan};
+}
+
+
+knowledge
+{
+
+	#
+	# this function checks that the given variable was initially equal the given town
+	#
+	function is_initially_in(variable where_is_x, value town)
+	{
+		if (initial value where_is_x == town)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	#
+	# this function checks that the given variable will be terminally equal the given town
+	#
+	function is_terminally_in(variable where_is_x, value town)
+	{
+		if (terminal value where_is_x == town)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	function is_initially_equal(variable where_is_x, variable where_is_y)
+	{
+		if (initial value where_is_x == initial value where_is_y)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	function can_see_is_alive(variable where_is_x, variable x_is_alive, value town)
+	{
+		if (terminal value where_is_x == town and terminal value x_is_alive == true)
+		{
+			return true;
+		}
+		if (terminal value where_is_x == town and terminal value x_is_alive == false)
+		{
+			return false;
+		}
+		return none;
+	}
+	
+	function get_terminal_value(variable x)
+	{
+		return terminal value x;
+	}
+	
+	impossible "dorban can see pregor and he does not know whether he is dead or alive" {
+		requires initial value can_dorban_see_pregor == true;
+		requires initial value can_dorban_see_pregor_is_alive == none;
+	}
+	
+	impossible "dorban cannot see pregor yet he can see he is dead or alive" {
+		requires initial value can_dorban_see_pregor == false;
+		requires not initial value can_dorban_see_pregor_is_alive == none;
+	}
+	
+	impossible "pregor is alive and dorban can see he is dead" {
+		requires initial value is_pregor_alive == true;
+		requires initial value can_dorban_see_pregor_is_alive == false;
+	}
+	
+	impossible "pregor is dead and dorban can see he is alive" {
+		requires initial value is_pregor_alive == false;
+		requires initial value can_dorban_see_pregor_is_alive == true;
+	}
+
+	impossible "dorban and pregor are in different towns yet pregor is following dorban" {
+		requires not initial value where_is_dorban == initial value where_is_pregor;
+		requires initial value is_pregor_following_dorban == true;
+	}
+	
+	impossible "pregor is dead yet he is following dorban" {
+		requires initial value is_pregor_alive == false;
+		requires initial value is_pregor_following_dorban == true;
+	}
+	
+	impossible "dorban and pregor are in the same town yet dorban cannot see pregor" {
+		requires initial value where_is_dorban == initial value where_is_pregor;
+		requires initial value can_dorban_see_pregor == false;
+	}
+	
+	impossible "dorban and pregor are in different towns yet dorban can see pregor" {
+		requires not initial value where_is_dorban == initial value where_is_pregor;
+		requires initial value can_dorban_see_pregor == true;
+	}
+	
+	impossible "dorban and vampire are in the same town yet dorban cannot see vampire" {
+		requires initial value where_is_dorban == initial value where_is_vampire;
+		requires initial value can_dorban_see_vampire == false;
+	}
+	
+	impossible "dorban and vampire are in different towns yet dorban can see vampire" {
+		requires not initial value where_is_dorban == initial value where_is_vampire;
+		requires initial value can_dorban_see_vampire == true;
+	}
+	
+	payoff "payoff for winning a fight":100.00 {
+		requires initial value has_dorban_won_a_fight == true;
+	}
+	payoff "payoff for loosing a fight":-100.00 {
+		requires initial value has_dorban_won_a_fight == false;
+	}
+	payoff "neutral payoff":0.00 {
+		requires initial value has_dorban_won_a_fight == none;
+	}
+	
+	
+	action {optimal_action=>ask_pregor_to_follow_dorban}:{
+	
+		case "dorban meets pregor and asks him to follow him" {
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive == true;
+			requires initial value where_is_dorban == initial value where_is_pregor;
+			requires initial value is_pregor_alive == true;
+			requires initial value is_pregor_following_dorban == false;
+			
+			probability "pregor is now following dorban" : 0.85 {
+				requires terminal value is_pregor_following_dorban == true;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value has_dorban_won_a_fight == none;
+				requires initial value can_dorban_see_vampire == terminal value can_dorban_see_vampire;
+				requires terminal value can_dorban_see_pregor == true;
+				requires terminal value can_dorban_see_pregor_is_alive == true;
+				requires terminal value is_pregor_alive == true;
+			}
+		
+			probability "pregor is not willing to follow dorban" : 0.15 {
+				requires terminal value is_pregor_following_dorban == false;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value has_dorban_won_a_fight == none;
+				requires initial value can_dorban_see_vampire == terminal value can_dorban_see_vampire;
+				requires terminal value can_dorban_see_pregor == true;
+				requires terminal value can_dorban_see_pregor_is_alive == true;
+				requires terminal value is_pregor_alive == true;
+			}
+		}
+		
+		case "dorban does not see pregor" {
+			requires initial value can_dorban_see_pregor==false;
+			illegal;
+		}
+		
+		case "dorban can see pregor, but he is dead" {
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive == false;
+			illegal;
+		}
+		
+		case "dorban can see pregor, he is already following dorban" {
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive == true;
+			requires initial value is_pregor_following_dorban == true;
+			illegal;
+		}
+	}
+	
+	
+	action {optimal_action=>attack_vampire}:{
+	
+		case "there is no vampire to attack" {
+			requires initial value can_dorban_see_vampire==false;
+			illegal;
+			}
+	
+		case "dorban with pregor attack vampire" {
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_vampire==true;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			requires initial value is_pregor_alive == true;
+	
+			probability "dorban with pregor succesfully attack the vampire" :0.80 {
+				requires terminal value has_dorban_won_a_fight==true;
+				
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value can_dorban_see_vampire == true;
+				requires terminal value can_dorban_see_pregor ==true;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value is_pregor_alive == true;
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+			}
+		
+			probability "dorban with pregor fail to win with the vampire, pregor quits dorban": 0.15 {
+				requires terminal value has_dorban_won_a_fight==false;
+				requires terminal value is_pregor_following_dorban==false;
+
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value can_dorban_see_vampire == true;
+				requires terminal value can_dorban_see_pregor ==true;
+				requires terminal value is_pregor_alive == true;
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+			}
+			
+			probability "dorban with pregor fail to win with the vampire, pregor dies":
+			0.05 {
+				requires terminal value has_dorban_won_a_fight==false;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value can_dorban_see_vampire == true;
+				requires terminal value can_dorban_see_pregor ==true;
+				requires terminal value is_pregor_alive==false;
+				requires terminal value can_dorban_see_pregor_is_alive==false;
+			}
+		}
+		
+		case "dorban alone attacks vampire" {
+			requires initial value can_dorban_see_vampire==true;
+			requires initial value is_pregor_following_dorban==false;
+			
+			probability "dorban alone succesfully attacks the vampire" :0.51 {
+				requires terminal value has_dorban_won_a_fight==true;
+				
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value is_pregor_following_dorban==false;
+				requires terminal value can_dorban_see_vampire==true;
+				
+				requires terminal value can_dorban_see_pregor==is_initially_equal(where_is_dorban, where_is_pregor);
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive == can_see_is_alive(where_is_pregor, is_pregor_alive, get_terminal_value(where_is_dorban));
+			}
+		
+			probability "dorban alone fails to win with the vampire" :0.49 {
+				requires terminal value has_dorban_won_a_fight==false;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires initial value where_is_dorban == terminal value where_is_dorban;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires terminal value is_pregor_following_dorban==false;
+				requires terminal value can_dorban_see_vampire==true;
+				requires terminal value can_dorban_see_pregor==is_initially_equal(where_is_dorban, where_is_pregor);
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive == can_see_is_alive(where_is_pregor, is_pregor_alive, get_terminal_value(where_is_dorban));
+			}
+		}
+	}
+
+
+	action {optimal_action=>goto_Warszawa}: {
+
+	case "dorban goes to Warszawa but he is already there" {
+			requires initial value where_is_dorban==place_Warszawa;
+			illegal;
+	}
+	
+	# there is a direct connection from Krakow to Warszawa
+			
+		case "dorban with pregor go to Warszawa from Krakow" {
+			requires initial value where_is_dorban==place_Krakow;
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Warszawa from Krakow" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value where_is_pregor==place_Warszawa;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Krakow to Warszawa" {
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Krakow;
+			
+			probability "dorban alone is going to Warszawa" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Warszawa);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Warszawa);
+					
+				
+			}
+		}
+	# there is no direct connection from Wroclaw to Warszawa
+
+		case "dorban goes to Warszawa from Wroclaw" {
+			requires initial value where_is_dorban==place_Wroclaw;
+			illegal;
+		}
+	# there is a direct connection from Gdansk to Warszawa
+			
+		case "dorban with pregor go to Warszawa from Gdansk" {
+			requires initial value where_is_dorban==place_Gdansk;
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Warszawa from Gdansk" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value where_is_pregor==place_Warszawa;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Gdansk to Warszawa" {
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Gdansk;
+			
+			probability "dorban alone is going to Warszawa" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Warszawa);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Warszawa);
+					
+				
+			}
+		}
+	# there is a direct connection from Poznan to Warszawa
+			
+		case "dorban with pregor go to Warszawa from Poznan" {
+			requires initial value where_is_dorban==place_Poznan;
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Warszawa from Poznan" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value where_is_pregor==place_Warszawa;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Poznan to Warszawa" {
+			requires not initial value where_is_dorban==place_Warszawa;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Poznan;
+			
+			probability "dorban alone is going to Warszawa" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Warszawa;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Warszawa);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Warszawa);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Warszawa);
+					
+				
+			}
+		}
+	}
+	action {optimal_action=>goto_Krakow}: {
+
+	case "dorban goes to Krakow but he is already there" {
+			requires initial value where_is_dorban==place_Krakow;
+			illegal;
+	}
+	
+	# there is a direct connection from Warszawa to Krakow
+			
+		case "dorban with pregor go to Krakow from Warszawa" {
+			requires initial value where_is_dorban==place_Warszawa;
+			requires not initial value where_is_dorban==place_Krakow;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Krakow from Warszawa" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Krakow;
+				requires terminal value where_is_pregor==place_Krakow;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Krakow);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Warszawa to Krakow" {
+			requires not initial value where_is_dorban==place_Krakow;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Warszawa;
+			
+			probability "dorban alone is going to Krakow" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Krakow;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Krakow);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Krakow);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Krakow);
+					
+				
+			}
+		}
+	# there is a direct connection from Wroclaw to Krakow
+			
+		case "dorban with pregor go to Krakow from Wroclaw" {
+			requires initial value where_is_dorban==place_Wroclaw;
+			requires not initial value where_is_dorban==place_Krakow;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Krakow from Wroclaw" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Krakow;
+				requires terminal value where_is_pregor==place_Krakow;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Krakow);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Wroclaw to Krakow" {
+			requires not initial value where_is_dorban==place_Krakow;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Wroclaw;
+			
+			probability "dorban alone is going to Krakow" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Krakow;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Krakow);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Krakow);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Krakow);
+					
+				
+			}
+		}
+	# there is no direct connection from Gdansk to Krakow
+
+		case "dorban goes to Krakow from Gdansk" {
+			requires initial value where_is_dorban==place_Gdansk;
+			illegal;
+		}
+	# there is no direct connection from Poznan to Krakow
+
+		case "dorban goes to Krakow from Poznan" {
+			requires initial value where_is_dorban==place_Poznan;
+			illegal;
+		}
+	}
+	action {optimal_action=>goto_Wroclaw}: {
+
+	case "dorban goes to Wroclaw but he is already there" {
+			requires initial value where_is_dorban==place_Wroclaw;
+			illegal;
+	}
+	
+	# there is no direct connection from Warszawa to Wroclaw
+
+		case "dorban goes to Wroclaw from Warszawa" {
+			requires initial value where_is_dorban==place_Warszawa;
+			illegal;
+		}
+	# there is a direct connection from Krakow to Wroclaw
+			
+		case "dorban with pregor go to Wroclaw from Krakow" {
+			requires initial value where_is_dorban==place_Krakow;
+			requires not initial value where_is_dorban==place_Wroclaw;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Wroclaw from Krakow" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Wroclaw;
+				requires terminal value where_is_pregor==place_Wroclaw;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Wroclaw);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Krakow to Wroclaw" {
+			requires not initial value where_is_dorban==place_Wroclaw;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Krakow;
+			
+			probability "dorban alone is going to Wroclaw" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Wroclaw;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Wroclaw);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Wroclaw);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Wroclaw);
+					
+				
+			}
+		}
+	# there is no direct connection from Gdansk to Wroclaw
+
+		case "dorban goes to Wroclaw from Gdansk" {
+			requires initial value where_is_dorban==place_Gdansk;
+			illegal;
+		}
+	# there is a direct connection from Poznan to Wroclaw
+			
+		case "dorban with pregor go to Wroclaw from Poznan" {
+			requires initial value where_is_dorban==place_Poznan;
+			requires not initial value where_is_dorban==place_Wroclaw;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Wroclaw from Poznan" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Wroclaw;
+				requires terminal value where_is_pregor==place_Wroclaw;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Wroclaw);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Poznan to Wroclaw" {
+			requires not initial value where_is_dorban==place_Wroclaw;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Poznan;
+			
+			probability "dorban alone is going to Wroclaw" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Wroclaw;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Wroclaw);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Wroclaw);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Wroclaw);
+					
+				
+			}
+		}
+	}
+	action {optimal_action=>goto_Gdansk}: {
+
+	case "dorban goes to Gdansk but he is already there" {
+			requires initial value where_is_dorban==place_Gdansk;
+			illegal;
+	}
+	
+	# there is a direct connection from Warszawa to Gdansk
+			
+		case "dorban with pregor go to Gdansk from Warszawa" {
+			requires initial value where_is_dorban==place_Warszawa;
+			requires not initial value where_is_dorban==place_Gdansk;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Gdansk from Warszawa" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Gdansk;
+				requires terminal value where_is_pregor==place_Gdansk;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Gdansk);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Warszawa to Gdansk" {
+			requires not initial value where_is_dorban==place_Gdansk;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Warszawa;
+			
+			probability "dorban alone is going to Gdansk" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Gdansk;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Gdansk);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Gdansk);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Gdansk);
+					
+				
+			}
+		}
+	# there is no direct connection from Krakow to Gdansk
+
+		case "dorban goes to Gdansk from Krakow" {
+			requires initial value where_is_dorban==place_Krakow;
+			illegal;
+		}
+	# there is no direct connection from Wroclaw to Gdansk
+
+		case "dorban goes to Gdansk from Wroclaw" {
+			requires initial value where_is_dorban==place_Wroclaw;
+			illegal;
+		}
+	# there is no direct connection from Poznan to Gdansk
+
+		case "dorban goes to Gdansk from Poznan" {
+			requires initial value where_is_dorban==place_Poznan;
+			illegal;
+		}
+	}
+	action {optimal_action=>goto_Poznan}: {
+
+	case "dorban goes to Poznan but he is already there" {
+			requires initial value where_is_dorban==place_Poznan;
+			illegal;
+	}
+	
+	# there is a direct connection from Warszawa to Poznan
+			
+		case "dorban with pregor go to Poznan from Warszawa" {
+			requires initial value where_is_dorban==place_Warszawa;
+			requires not initial value where_is_dorban==place_Poznan;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Poznan from Warszawa" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Poznan;
+				requires terminal value where_is_pregor==place_Poznan;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Poznan);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Warszawa to Poznan" {
+			requires not initial value where_is_dorban==place_Poznan;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Warszawa;
+			
+			probability "dorban alone is going to Poznan" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Poznan;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Poznan);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Poznan);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Poznan);
+					
+				
+			}
+		}
+	# there is no direct connection from Krakow to Poznan
+
+		case "dorban goes to Poznan from Krakow" {
+			requires initial value where_is_dorban==place_Krakow;
+			illegal;
+		}
+	# there is a direct connection from Wroclaw to Poznan
+			
+		case "dorban with pregor go to Poznan from Wroclaw" {
+			requires initial value where_is_dorban==place_Wroclaw;
+			requires not initial value where_is_dorban==place_Poznan;
+			requires initial value is_pregor_following_dorban==true;
+			requires initial value can_dorban_see_pregor==true;
+			requires initial value can_dorban_see_pregor_is_alive==true;
+			
+			probability "dorban with pregor go to Poznan from Wroclaw" : 1.00{
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Poznan;
+				requires terminal value where_is_pregor==place_Poznan;
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==true;
+				requires terminal value can_dorban_see_pregor==true;
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Poznan);
+				requires terminal value can_dorban_see_pregor_is_alive==true;
+				requires terminal value is_pregor_alive==true;
+			}
+		}
+		
+		
+		case "dorban alone goes from Wroclaw to Poznan" {
+			requires not initial value where_is_dorban==place_Poznan;
+			requires initial value is_pregor_following_dorban==false;
+			requires initial value where_is_dorban == place_Wroclaw;
+			
+			probability "dorban alone is going to Poznan" : 1.00 {
+				requires terminal value has_dorban_won_a_fight==none;
+				requires terminal value where_is_dorban==place_Poznan;
+				requires terminal value can_dorban_see_pregor==is_initially_in(where_is_pregor, place_Poznan);
+				requires terminal value can_dorban_see_vampire==is_initially_in(where_is_vampire, place_Poznan);
+				requires initial value where_is_vampire == terminal value where_is_vampire;
+				requires terminal value is_pregor_following_dorban==false;
+				requires initial value where_is_pregor == terminal value where_is_pregor;
+				requires initial value is_pregor_alive == terminal value is_pregor_alive;
+				requires terminal value can_dorban_see_pregor_is_alive== can_see_is_alive(where_is_pregor, is_pregor_alive, place_Poznan);
+					
+				
+			}
+		}
+	# there is no direct connection from Gdansk to Poznan
+
+		case "dorban goes to Poznan from Gdansk" {
+			requires initial value where_is_dorban==place_Gdansk;
+			illegal;
+		}
+	}
+}
+
+cout << precalculate(4,2) << eol;
+

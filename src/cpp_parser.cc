@@ -106,7 +106,15 @@ private:
 	
 	int parse_knowledge_case(knowledge_action::knowledge_case *& target);
 	
+	int parse_knowledge_precalculated(knowledge_precalculated *& target);
+	
+	int parse_knowledge_precalculated_on_visible_state(knowledge_precalculated::on_visible_state *& target);
+	
+	int parse_knowledge_precalculated_on_belief(knowledge_precalculated::on_visible_state::on_belief *& target);
+	
 	int parse_knowledge_probability(knowledge_action::knowledge_case::knowledge_probability_case *& target);
+	
+	int parse_knowledge_precalculated_belief_case(knowledge_precalculated::on_visible_state::on_belief::belief_case *& target);
 	
 	int parse_requires(clause_requires *& target);
 		
@@ -206,6 +214,11 @@ const cpp_parser::token_and_name cpp_parser::array_of_tokens_and_names[] =
 	{ T_SOLVE, "T_SOLVE" },
 	{ T_RESULT, "T_RESULT" },
 	{ T_PRECALCULATE, "T_PRECALCULATE" },
+	{ T_ESTIMATE, "T_ESTIMATE" },
+	{ T_PRECALCULATED, "T_PRECALCULATED" },
+	{ T_ON, "T_ON" },
+	{ T_TOO, "T_TOO" },
+	{ T_COMPLEX, "T_COMPLEX" },
 	{ 0, "EOF" }
 };
 
@@ -1522,6 +1535,396 @@ int cpp_parser::parse_knowledge_function(function *& target)
 	return 0;
 }
 
+int cpp_parser::parse_knowledge_precalculated_belief_case(knowledge_precalculated::on_visible_state::on_belief::belief_case *& target)
+{
+	int i;
+	
+	i = lex();
+	if (i != T_CASE)
+	{
+		PARSING_ERROR(i, "case");
+		return -1;
+	}
+
+	query *qi = new query(((optimizer*)kuna_optimizer)->v.get_vector_of_variables(), ((optimizer*)kuna_optimizer)->w.get_vector_of_values());
+	if (parse_query(*qi) == -1)
+	{
+		delete qi;
+		return -1;
+	}
+	
+	
+	i = lex();
+	if (i != ':')
+	{
+		delete qi;
+		PARSING_ERROR(i, ":");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != T_FLOAT_LITERAL)
+	{
+		delete qi;
+		PARSING_ERROR(i, "<float>");
+		return -1;
+	}
+	
+	target = new knowledge_precalculated::on_visible_state::on_belief::belief_case(
+		yylval.value_float, qi);
+	
+	i = lex();
+	if (i != ';')
+	{
+		PARSING_ERROR(i, ";");	// there is no need to delete qi here, since it is already
+								// owned by the target
+		return -1;
+	}
+
+	return 0;
+}
+
+int cpp_parser::parse_knowledge_precalculated_on_belief(knowledge_precalculated::on_visible_state::on_belief *& target)
+{
+	int i;
+	
+	i = lex();
+	if (i != T_ON)
+	{
+		PARSING_ERROR(i, "on");
+		return -1;
+	}
+	i = lex();
+	if (i != T_BELIEF)
+	{
+		PARSING_ERROR(i, "belief");
+		return -1;
+	}
+	i = lex();
+	if (i != '(')
+	{
+		PARSING_ERROR(i, "(");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '{')
+	{
+		PARSING_ERROR(i, "{");
+		return -1;
+	}
+	
+	target = new knowledge_precalculated::on_visible_state::on_belief();
+	
+	do
+	{
+		i = lex();
+		if (i == '}')
+		{
+			break;
+		}
+		unlex(i);
+		knowledge_precalculated::on_visible_state::on_belief::belief_case * x = nullptr;
+		if (parse_knowledge_precalculated_belief_case(x))
+		{
+			delete x;
+			return -1;
+		}
+		
+		target->add_belief_case(x);
+	}
+	while (true);
+	
+	i = lex();
+	if (i != ')')
+	{
+		PARSING_ERROR(i, ")");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '{')
+	{
+		PARSING_ERROR(i, "{");
+		return -1;
+	}
+	
+	
+	i = lex();
+	if (i != T_ACTION)
+	{
+		PARSING_ERROR(i, "action");
+		return -1;
+	}
+
+	query *qi = new query(((optimizer*)kuna_optimizer)->v.get_vector_of_variables(), ((optimizer*)kuna_optimizer)->w.get_vector_of_values());
+	if (parse_query(*qi) == -1)
+	{
+		delete qi;
+		return -1;
+	}
+	
+	target->set_action_query(qi);
+	
+	i = lex();
+	if (i != ';')
+	{
+		PARSING_ERROR(i, ";");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '}')
+	{
+		PARSING_ERROR(i, "}");
+		return -1;
+	}
+	
+	return 0;
+}
+
+int cpp_parser::parse_knowledge_precalculated_on_visible_state(knowledge_precalculated::on_visible_state *& target)
+{
+	int i;
+	i = lex();
+	if (i != T_ON)
+	{
+		PARSING_ERROR(i, "on");
+		return -1;
+	}
+	i = lex();
+	if (i != T_VISIBLE)
+	{
+		PARSING_ERROR(i, "visible");
+		return -1;
+	}
+	i = lex();
+	if (i != T_STATE)
+	{
+		PARSING_ERROR(i, "state");
+		return -1;
+	}
+	i = lex();
+	if (i != '(')
+	{
+		PARSING_ERROR(i, "(");
+		return -1;
+	}
+	
+	
+	query *qi = new query(((optimizer*)kuna_optimizer)->v.get_vector_of_variables(), ((optimizer*)kuna_optimizer)->w.get_vector_of_values());
+	if (parse_query(*qi) == -1)
+	{
+		delete qi;
+		return -1;
+	}
+	
+	target = new knowledge_precalculated::on_visible_state(qi);
+	
+	i = lex();
+	if (i != ')')
+	{
+		PARSING_ERROR(i, ")");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '{')
+	{
+		PARSING_ERROR(i, "{");
+		return -1;
+	}
+	
+	do
+	{
+		i = lex();
+		if (i == '}')
+		{
+			break;
+		}
+		if (i == T_IDENTIFIER)
+		{
+			if (std::string(yylval.value_string) == "amount_of_possible_states")
+			{
+				free(yylval.value_string);
+				
+				i = lex();
+				if (i != '=')
+				{
+					PARSING_ERROR(i, "=");
+					return -1;
+				}
+				
+				
+				i = lex();
+				if (i != T_FLOAT_LITERAL)
+				{
+					PARSING_ERROR(i, "<float>");
+					return -1;
+				}
+				
+				i = lex();
+				if (i != ';')
+				{
+					PARSING_ERROR(i, ";");
+					return -1;
+				}
+			}
+			else
+			if (std::string(yylval.value_string) == "max_amount_of_beliefs")
+			{
+				free(yylval.value_string);
+				
+				i = lex();
+				if (i != '=')
+				{
+					PARSING_ERROR(i, "=");
+					return -1;
+				}
+				
+				
+				i = lex();
+				if (i != T_FLOAT_LITERAL)
+				{
+					PARSING_ERROR(i, "<float>");
+					return -1;
+				}
+				
+				i = lex();
+				if (i != ';')
+				{
+					PARSING_ERROR(i, ";");
+					return -1;
+				}
+			}
+			else
+			{
+				PARSING_ERROR(i, "amount_of_possible_states or max_amount_of_beliefs");
+				
+				free(yylval.value_string);
+				return -1;
+			}
+		}
+		else
+		if (i == T_TOO)
+		{
+			i = lex();
+			if (i != T_COMPLEX)
+			{
+				PARSING_ERROR(i, "complex");
+				return -1;
+			}
+			i = lex();
+			if (i != ';')
+			{
+				PARSING_ERROR(i, ";");
+				return -1;
+			}
+		}
+		else
+		if (i == T_ON)
+		{
+			unlex(i);
+			knowledge_precalculated::on_visible_state::on_belief * x = nullptr;
+			if (parse_knowledge_precalculated_on_belief(x))
+			{
+				delete x;
+				return -1;
+			}
+			target->add_on_belief(x);
+		}
+		else
+		{
+			PARSING_ERROR(i, "too or on or <identifier>");
+			return -1;
+		}
+	}
+	while (true);
+
+	return 0;
+}
+
+int cpp_parser::parse_knowledge_precalculated(knowledge_precalculated *& target)
+{
+	int i;
+	
+	i = lex();
+	if (i != T_PRECALCULATED)
+	{
+		PARSING_ERROR(i, "precalculated");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '(')
+	{
+		PARSING_ERROR(i, "(");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != T_INT_LITERAL)
+	{
+		PARSING_ERROR(i, "<int>");
+		return -1;
+	}
+	
+	int depth = yylval.value_int;
+	
+	i = lex();
+	if (i != ',')
+	{
+		PARSING_ERROR(i, ",");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != T_INT_LITERAL)
+	{
+		PARSING_ERROR(i, "<int>");
+		return -1;
+	}
+	
+	int granularity = yylval.value_int;
+
+	i = lex();
+	if (i != ')')
+	{
+		PARSING_ERROR(i, ")");
+		return -1;
+	}
+	
+	i = lex();
+	if (i != '{')
+	{
+		PARSING_ERROR(i, "{");
+		return -1;
+	}
+	
+	target = new knowledge_precalculated(depth, granularity);
+
+	do
+	{
+		i = lex();
+		if (i == '}')
+		{
+			break;
+		}
+		unlex(i);
+		knowledge_precalculated::on_visible_state * x = nullptr;
+		
+		if (parse_knowledge_precalculated_on_visible_state(x))
+		{
+			delete x;
+			return -1;
+		}
+		
+		target->add_on_visible_state(x);
+	}
+	while (true);
+	
+	return 0;
+}
 
 int cpp_parser::parse_knowledge_payoff(knowledge_payoff *& target)
 {
@@ -1689,6 +2092,18 @@ int cpp_parser::parse_knowledge()
 				return -1;
 			}
 			((optimizer*)kuna_optimizer)->add_knowledge_payoff(x);
+		}
+		else
+		if (i == T_PRECALCULATED)
+		{
+			unlex(T_PRECALCULATED);
+			knowledge_precalculated * x = nullptr;
+			if (parse_knowledge_precalculated(x))
+			{
+				delete x;
+				return -1;
+			}
+			((optimizer*)kuna_optimizer)->add_knowledge_precalculated(x);			
 		}
 		else
 		{
@@ -1991,6 +2406,55 @@ int cpp_parser::parse_commands()
 			{
 				command_cout_result * c = new command_cout_result();
 				((optimizer*)kuna_optimizer)->add_command(c);
+			}
+			else
+			if (i == T_ESTIMATE)
+			{
+				i = lex();
+				if (i != '(')
+				{
+					PARSING_ERROR(i, "(");
+					return -1;
+				}
+				
+				i = lex();
+				if (i != T_INT_LITERAL)
+				{
+					PARSING_ERROR(i, "int literal");
+					return -1;
+				}
+				int depth = yylval.value_int;
+				
+				i = lex();
+				if (i != ',')
+				{
+					PARSING_ERROR(i, ",");
+					return -1;
+				}
+
+				i = lex();
+				if (i != T_INT_LITERAL)
+				{
+					PARSING_ERROR(i, "int literal");
+					return -1;
+				}
+				
+				if (yylval.value_int < 2)
+				{
+					PARSING_ERROR(i, "granularity (second argument) should be >=2");
+					return -1;
+				}
+				
+				command_cout_estimate_beliefs * c = new command_cout_estimate_beliefs(depth, yylval.value_int);
+				((optimizer*)kuna_optimizer)->add_command(c);
+
+
+				i = lex();
+				if (i != ')')
+				{
+					PARSING_ERROR(i, ")");
+					return -1;
+				}
 			}
 			else
 			if (i == T_PRECALCULATE)

@@ -180,6 +180,12 @@ optimizer::~optimizer()
 		delete *i;
 	}
 	list_of_knowledge_payoffs.clear();
+	
+	for (auto i(list_of_knowledge_precalculated.begin()); i!=list_of_knowledge_precalculated.end(); ++i)
+	{
+		delete *i;
+	}
+	list_of_knowledge_precalculated.clear();
 }
 
 value * optimizer::get_value(const char * n)
@@ -216,6 +222,16 @@ void optimizer::add_knowledge_impossible(knowledge_impossible * i)
 	}
 	list_of_knowledge_impossibles.push_back(i);
 }
+
+void optimizer::add_knowledge_precalculated(knowledge_precalculated * i)
+{
+	if (i == nullptr)
+	{
+		throw std::runtime_error("attempt to add null as knowledge precalculated");
+	}
+	list_of_knowledge_precalculated.push_back(i);
+}
+
 
 		
 void optimizer::add_knowledge_action(knowledge_action * a)
