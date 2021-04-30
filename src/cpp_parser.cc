@@ -2103,7 +2103,8 @@ int cpp_parser::parse_knowledge()
 				delete x;
 				return -1;
 			}
-			((optimizer*)kuna_optimizer)->add_knowledge_precalculated(x);			
+			((optimizer*)kuna_optimizer)->add_knowledge_precalculated(x);
+			x->learn(*((optimizer*)kuna_optimizer));
 		}
 		else
 		{

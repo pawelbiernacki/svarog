@@ -816,34 +816,27 @@ const action * optimizer::get_optimal_action(const belief & b, int n)
 	{
 		if ((*i)->get_depth()>=n)
 		{
-			// this searching could be improved by using a map
-			auto & mylist((*i)->get_list_of_objects_on_visible_state());
-			for (auto j(mylist.begin()); j!=mylist.end(); ++j)
+			const knowledge_precalculated::on_visible_state *j = (*i)->get_object_on_visible_state(b.get_visible_state());
+			
+			if (!j) continue; 
+			
+			float distance = std::numeric_limits<float>::max();
+			auto & mylist_on_belief(j->get_list_of_objects_on_belief());
+			for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
 			{
-				const query * q = (*j)->get_query();
-				if (b.get_visible_state().get_match(*q))
+				float d = (*k)->get_distance(b);
+				if (d < distance)
 				{
-					float distance = std::numeric_limits<float>::max();
-					auto & mylist_on_belief((*j)->get_list_of_objects_on_belief());
-					for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
-					{
-						float d = (*k)->get_distance(b);
-						if (d < distance)
-						{
-							distance = d;
+					distance = d;
 							
-							// this could be done faster
-							argmax = a.get(*(*k)->get_action_query());
-						}
-					}
-					
-					if (argmax)
-					{
-						std::cout << "got precalculated action\n";
-						return argmax;
-					}
-					break;
+					argmax = (*k)->get_action();
 				}
+			}
+					
+			if (argmax)
+			{
+				std::cout << "got precalculated action\n";
+				return argmax;
 			}
 		}
 	}

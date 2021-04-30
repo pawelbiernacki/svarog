@@ -29,6 +29,38 @@ knowledge_precalculated::~knowledge_precalculated()
 	list_of_objects_on_visible_state.clear();
 }
 
+const knowledge_precalculated::on_visible_state* knowledge_precalculated::get_object_on_visible_state(const visible_state & x) const
+{
+	auto i = map_visible_state_to_object_on_visible_state.find(&x);
+	if (i != map_visible_state_to_object_on_visible_state.end())
+	{
+		return i->second;
+	}
+	return nullptr;
+}
+
+
+void knowledge_precalculated::learn(optimizer & o)
+{
+	for (auto i(o.vs.get_list_of_visible_states().begin()); i!=o.vs.get_list_of_visible_states().end(); ++i)
+	{
+		for (auto j(list_of_objects_on_visible_state.begin()); j!=list_of_objects_on_visible_state.end(); ++j)
+		{
+			const query * q = (*j)->get_query();
+			if ((*i)->get_match(*q))
+			{
+				map_visible_state_to_object_on_visible_state.insert(std::pair<const visible_state*, on_visible_state*>(*i, *j));
+				
+				auto& mylist_on_belief((*j)->get_list_of_objects_on_belief());
+				
+				for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
+				{
+					(*k)->set_action(o.a.get(*(*k)->get_action_query()));
+				}
+			}
+		}
+	}
+}
 
 knowledge_precalculated::on_visible_state::~on_visible_state()
 {

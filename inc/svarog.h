@@ -700,6 +700,8 @@ public:
 	};
 	
 	class belief;
+	class action;
+	class visible_state;
 	
 	/**
 	 * The precalculated knowledge is produced by the command
@@ -734,17 +736,21 @@ public:
 			private:
 				std::list<belief_case*> list_of_belief_cases;
 				query * my_action_query;
+				const action * my_action;
 			public:
-				on_belief(): my_action_query{nullptr} {}
+				on_belief(): my_action_query{nullptr}, my_action{nullptr} {}
 				~on_belief();
 				void add_belief_case(belief_case * i) { list_of_belief_cases.push_back(i); }
 				void set_action_query(query * q) { my_action_query = q; }
-								
+				void set_action(const action * a) { my_action = a; }
+				
 				const std::list<belief_case*>& get_list_of_belief_cases() const 
 				{ return list_of_belief_cases; }
 				const query * get_action_query() const { return my_action_query; }
 				
 				float get_distance(const belief & b) const;
+				
+				const action* get_action() const { return my_action; }
 			};
 			private:
 			query * my_query;
@@ -768,6 +774,8 @@ public:
 		std::list<on_visible_state*> list_of_objects_on_visible_state;
 		const int depth, granularity;
 		
+		std::map<const visible_state *, on_visible_state*> map_visible_state_to_object_on_visible_state;
+		
 		public:
 		knowledge_precalculated(int d, int g): depth{d}, granularity{g} {}
 		~knowledge_precalculated();
@@ -781,6 +789,14 @@ public:
 		
 		const std::list<on_visible_state*> & get_list_of_objects_on_visible_state() const
 		{ return list_of_objects_on_visible_state; }
+		
+		/**
+		 * This method populates the map_visible_state_to_object_on_visible_state,
+		 * it also stores the action pointers in the on_belief objects.
+		 */
+		void learn(optimizer & o);
+		
+		const on_visible_state* get_object_on_visible_state(const visible_state & x) const;
 	};
 	
 	class knowledge_impossible
