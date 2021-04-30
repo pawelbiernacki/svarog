@@ -835,7 +835,7 @@ const action * optimizer::get_optimal_action(const belief & b, int n)
 					
 			if (argmax)
 			{
-				std::cout << "got precalculated action\n";
+				//std::cout << "got precalculated action\n";
 				return argmax;
 			}
 		}
