@@ -13,3 +13,4 @@ YYYY-MM-DD
 2020-10-06	fixing some client-server problems
 2020-10-14	a new example (example3_dorban.svarog)
 2021-04-26	a new command - cout << precalculate(depth,granularity) << eol;
+2021-04-30	release 0.0.4
