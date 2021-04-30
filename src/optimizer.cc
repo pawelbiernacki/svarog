@@ -807,7 +807,48 @@ const action * optimizer::get_optimal_action_using_servers(const belief & b, int
 const action * optimizer::get_optimal_action(const belief & b, int n)
 {
 	float max = std::numeric_limits<float>::lowest();
-	action * argmax = NULL;
+	const action * argmax = nullptr;
+	
+	
+	// try to use the precalculated knowledge
+	for (auto i(list_of_knowledge_precalculated.begin());
+		 i != list_of_knowledge_precalculated.end(); ++i)
+	{
+		if ((*i)->get_depth()>=n)
+		{
+			// this searching could be improved by using a map
+			auto & mylist((*i)->get_list_of_objects_on_visible_state());
+			for (auto j(mylist.begin()); j!=mylist.end(); ++j)
+			{
+				const query * q = (*j)->get_query();
+				if (b.get_visible_state().get_match(*q))
+				{
+					float distance = std::numeric_limits<float>::max();
+					auto & mylist_on_belief((*j)->get_list_of_objects_on_belief());
+					for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
+					{
+						float d = (*k)->get_distance(b);
+						if (d < distance)
+						{
+							distance = d;
+							
+							// this could be done faster
+							argmax = a.get(*(*k)->get_action_query());
+						}
+					}
+					
+					if (argmax)
+					{
+						std::cout << "got precalculated action\n";
+						return argmax;
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	
 	std::list<action*>::const_iterator i(a.get_list_of_actions().begin());
 	
 	for (;i != a.get_list_of_actions().end(); i++)

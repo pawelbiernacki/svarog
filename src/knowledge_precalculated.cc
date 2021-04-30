@@ -50,3 +50,18 @@ knowledge_precalculated::on_visible_state::on_belief::~on_belief()
 	delete my_action_query;
 }
 
+float knowledge_precalculated::on_visible_state::on_belief::get_distance(const belief & b) const
+{
+	float result = 0.0f;
+	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
+	{
+		const query * q = (*i)->get_query();
+		const state * s = b.get_visible_state().get(*q);
+
+		float delta = (*i)->get_probability()-b.get_probability(const_cast<state*>(s));
+		
+		result += delta*delta;
+	}
+	return result;
+}
+

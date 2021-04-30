@@ -699,6 +699,7 @@ public:
 		virtual bool get_is_illegal() const { return true; }
 	};
 	
+	class belief;
 	
 	/**
 	 * The precalculated knowledge is produced by the command
@@ -738,10 +739,12 @@ public:
 				~on_belief();
 				void add_belief_case(belief_case * i) { list_of_belief_cases.push_back(i); }
 				void set_action_query(query * q) { my_action_query = q; }
-				
+								
 				const std::list<belief_case*>& get_list_of_belief_cases() const 
 				{ return list_of_belief_cases; }
 				const query * get_action_query() const { return my_action_query; }
+				
+				float get_distance(const belief & b) const;
 			};
 			private:
 			query * my_query;
@@ -757,6 +760,8 @@ public:
 			
 			const std::list<on_belief*> & get_list_of_objects_on_belief() const
 			{ return list_of_objects_on_belief; }
+			
+			const query* get_query() const { return my_query; }
 		};
 		
 		private:
