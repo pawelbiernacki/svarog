@@ -723,7 +723,7 @@ public:
 				{
 				private:
 					const float probability;
-					query * my_query;
+					query * my_query;	// owned
 				public:
 					belief_case(float p, query * q): probability{p}, my_query{q} {}
 					~belief_case()
@@ -734,9 +734,9 @@ public:
 					float get_probability() const { return probability; }
 				};
 			private:
-				std::list<belief_case*> list_of_belief_cases;
-				query * my_action_query;
-				const action * my_action;
+				std::list<belief_case*> list_of_belief_cases; // owned
+				query * my_action_query; // owned
+				const action * my_action; // not owned
 			public:
 				on_belief(): my_action_query{nullptr}, my_action{nullptr} {}
 				~on_belief();
@@ -753,9 +753,9 @@ public:
 				const action* get_action() const { return my_action; }
 			};
 			private:
-			query * my_query;
+			query * my_query; // owned
 			
-			std::list<on_belief *> list_of_objects_on_belief;
+			std::list<on_belief *> list_of_objects_on_belief; // owned
 			
 			public:
 				
@@ -771,7 +771,7 @@ public:
 		};
 		
 		private:
-		std::list<on_visible_state*> list_of_objects_on_visible_state;
+		std::list<on_visible_state*> list_of_objects_on_visible_state; // owned
 		const int depth, granularity;
 		
 		std::map<const visible_state *, on_visible_state*> map_visible_state_to_object_on_visible_state;
@@ -793,6 +793,8 @@ public:
 		/**
 		 * This method populates the map_visible_state_to_object_on_visible_state,
 		 * it also stores the action pointers in the on_belief objects.
+		 * This makes using the knowledge_precalculated faster.
+		 * It is called by the cpp_parser.
 		 */
 		void learn(optimizer & o);
 		
