@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "svarog.h"
+#include <cassert>
 using namespace svarog;
 
 knowledge_precalculated::~knowledge_precalculated()
@@ -62,6 +63,88 @@ void knowledge_precalculated::learn(optimizer & o)
 	}
 }
 
+
+void knowledge_precalculated::merge(const knowledge_precalculated & k, optimizer & target)
+{
+	assert(k.get_granularity() == get_granularity());
+	assert(k.get_depth() == get_depth());
+	for (auto i(k.list_of_objects_on_visible_state.begin()); i!=k.list_of_objects_on_visible_state.end(); ++i)
+	{
+		bool found = false;
+		for (auto j(list_of_objects_on_visible_state.begin()); j!=list_of_objects_on_visible_state.end(); ++j)
+		{
+			if ((*i)->get_query()->get_equal(*(*j)->get_query()))
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			on_visible_state * n = (*i)->get_copy(target);
+			
+			std::cerr << "# add on_visible_state ";
+			n->get_query()->report_kuna(std::cerr);
+			std::cerr << "\n";
+			
+			add_on_visible_state(n);
+		}
+	}
+}
+
+
+void knowledge_precalculated::report_kuna(std::ostream & s) const
+{
+	s << "precalculated (" << get_depth() << "," << get_granularity() << ")\n"
+	<< "{\n";
+	
+	for (auto i(list_of_objects_on_visible_state.begin()); i != list_of_objects_on_visible_state.end(); ++i)
+	{
+		(*i)->report_kuna(s);
+	}
+	
+	s << "}\n";
+}
+
+knowledge_precalculated::on_visible_state* knowledge_precalculated::on_visible_state::get_copy(optimizer & target) const
+{
+	on_visible_state * result = new on_visible_state(my_query->get_copy(target));
+	
+	result->set_amount_of_possible_states(amount_of_possible_states);
+	result->set_max_amount_of_beliefs(max_amount_of_beliefs);
+	result->set_too_complex(too_complex);
+	
+	for (auto i(list_of_objects_on_belief.begin()); i!=list_of_objects_on_belief.end(); ++i)
+	{
+		on_belief * ob = (*i)->get_copy(target);
+		result->add_on_belief(ob);
+	}
+	return result;
+}
+
+
+void knowledge_precalculated::on_visible_state::report_kuna(std::ostream & s) const
+{
+	s << "on visible state (";
+	my_query->report_kuna(s);
+	s << ")\n";
+	s << "	{\n";
+	
+	s << "amount_of_possible_states = " << amount_of_possible_states << ";\n";
+	s << "max_amount_of_beliefs = " << max_amount_of_beliefs << ";\n";
+	if (too_complex)
+	{
+		s << "too complex;\n";
+	}
+	
+	for (auto i(list_of_objects_on_belief.begin()); i!=list_of_objects_on_belief.end(); ++i)
+	{
+		(*i)->report_kuna(s);
+	}
+	
+	s << "	}\n";
+}
+
 knowledge_precalculated::on_visible_state::~on_visible_state()
 {
 	for (auto i(list_of_objects_on_belief.begin()); i!=list_of_objects_on_belief.end(); ++i)
@@ -82,6 +165,24 @@ knowledge_precalculated::on_visible_state::on_belief::~on_belief()
 	delete my_action_query;
 }
 
+void knowledge_precalculated::on_visible_state::on_belief::report_kuna(std::ostream & s) const
+{
+	s << "on belief ({\n";
+	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
+	{
+		(*i)->report_kuna(s);
+		s << "\n";
+	}
+	s << "}\n)\n";
+	s << "		{\n";
+	s << "		action ";
+	my_action_query->report_kuna(s);
+	s << ";\n";
+	
+	s << "		}\n";
+}
+
+
 float knowledge_precalculated::on_visible_state::on_belief::get_distance(const belief & b) const
 {
 	float result = 0.0f;
@@ -97,3 +198,31 @@ float knowledge_precalculated::on_visible_state::on_belief::get_distance(const b
 	return result;
 }
 
+
+knowledge_precalculated::on_visible_state::on_belief* knowledge_precalculated::on_visible_state::on_belief::get_copy(optimizer & target) const
+{
+	on_belief * result = new on_belief();
+	
+	result->set_action_query(my_action_query->get_copy(target));
+	
+	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
+	{
+		result->add_belief_case((*i)->get_copy(target));
+	}
+	return result;
+}
+
+				
+void knowledge_precalculated::on_visible_state::on_belief::belief_case::report_kuna(std::ostream & s) const
+{
+	s << "case ";
+	my_query->report_kuna(s);
+	s << ":";
+	s << probability << ";";
+}
+
+knowledge_precalculated::on_visible_state::on_belief::belief_case * knowledge_precalculated::on_visible_state::on_belief::belief_case::get_copy(optimizer & target) const
+{
+	belief_case * result = new belief_case(probability, my_query->get_copy(target));
+	return result;
+}

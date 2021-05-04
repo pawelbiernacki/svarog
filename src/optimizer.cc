@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "svarog.h"
+#include "config.h"
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
@@ -1223,4 +1224,95 @@ int optimizer::parse_buffer(const char * buffer)
 	set_error_message(stream.str());
 	
 	return i;	
+}
+
+void optimizer::merge(const optimizer & o)
+{
+	for (auto i(list_of_knowledge_precalculated.begin());
+		 i != list_of_knowledge_precalculated.end(); ++i)
+	{
+		for (auto j(o.list_of_knowledge_precalculated.begin());
+			 j != o.list_of_knowledge_precalculated.end(); ++j)
+		{
+			if ((*i)->get_depth() == (*j)->get_depth() 
+				&& (*i)->get_granularity() == (*j)->get_granularity())
+			{
+				(*i)->merge(**j, *this);
+			}
+		}
+	}
+}
+
+void optimizer::report_kuna(std::ostream & s) const
+{
+	s << "#!svarog\n";
+	s << "# created by " << PACKAGE_STRING << "\n";
+	s << "\n";
+	s << "values\n{\n";
+	s << "value ";
+	
+	bool first = true;
+	
+	for (auto i(w.get_vector_of_values().begin()); i!=w.get_vector_of_values().end(); i++)
+	{
+		if (!first) s << ",";
+		s << (*i)->get_name();
+		first = false;
+	}
+	s << ";\n";
+
+	s << "}\n";
+	
+	s << "variables\n{\n";
+	
+	for (auto i(v.get_vector_of_variables().begin()); i!=v.get_vector_of_variables().end(); i++)
+	{
+		s << (*i)->get_type_name() << " variable " << (*i)->get_name() << ":{";
+		first = true;
+		for (std::list<const value*>::const_iterator j((*i)->get_list_of_possible_values().begin());
+			 j != (*i)->get_list_of_possible_values().end(); j++)
+			 {
+				 if (!first) s << ",";
+				 s << (*j)->get_name();
+				 first = false;
+			 }
+		s << "};\n";
+	}
+
+	s << "}\n";
+	
+	s << "knowledge\n"
+				<< "{\n";
+				
+	for (auto i(list_of_knowledge_actions.begin()); i!= list_of_knowledge_actions.end(); i++)
+	{
+		(*i)->report_kuna(s);
+	}
+	
+	for (auto i(f.get_vector_of_functions().begin()); i!=f.get_vector_of_functions().end(); i++)
+	{
+		(*i)->report_kuna(s);
+		s << "\n";
+	}
+
+	for (auto i(list_of_knowledge_impossibles.begin()); i!=list_of_knowledge_impossibles.end(); i++)
+	{
+		(*i)->report_kuna(s);
+		s << "\n";
+	}
+
+	for (auto i(list_of_knowledge_payoffs.begin()); i!=list_of_knowledge_payoffs.end(); i++)
+	{
+		(*i)->report_kuna(s);
+		s << "\n";
+	}
+	
+	for (auto i(list_of_knowledge_precalculated.begin());
+		 i != list_of_knowledge_precalculated.end(); ++i)
+	{
+		(*i)->report_kuna(s);
+	}
+	
+	s << "}\n";
+	
 }

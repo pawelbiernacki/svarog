@@ -90,7 +90,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = svarog$(EXEEXT) svarog-daemon$(EXEEXT) \
-	svarog-dummy-client$(EXEEXT)
+	svarog-dummy-client$(EXEEXT) svarog-merge$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -155,7 +155,7 @@ am_libsvarog_la_OBJECTS = scanner.lo cpp_parser.lo optimizer.lo \
 	configuration_parser.lo command_input.lo command_action.lo \
 	command_belief.lo command_solve.lo command_cout_result.lo \
 	command_cout_precalculate.lo command_cout_estimate_beliefs.lo \
-	knowledge_precalculated.lo
+	knowledge_precalculated.lo query.lo
 libsvarog_la_OBJECTS = $(am_libsvarog_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -171,6 +171,9 @@ svarog_daemon_DEPENDENCIES = libsvarog.la
 am_svarog_dummy_client_OBJECTS = dummy_client.$(OBJEXT)
 svarog_dummy_client_OBJECTS = $(am_svarog_dummy_client_OBJECTS)
 svarog_dummy_client_LDADD = $(LDADD)
+am_svarog_merge_OBJECTS = svarog_merge.$(OBJEXT)
+svarog_merge_OBJECTS = $(am_svarog_merge_OBJECTS)
+svarog_merge_DEPENDENCIES = libsvarog.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -232,9 +235,11 @@ am__v_LEX_0 = @echo "  LEX     " $@;
 am__v_LEX_1 = 
 YLWRAP = $(top_srcdir)/ylwrap
 SOURCES = $(libsvarog_la_SOURCES) $(svarog_SOURCES) \
-	$(svarog_daemon_SOURCES) $(svarog_dummy_client_SOURCES)
+	$(svarog_daemon_SOURCES) $(svarog_dummy_client_SOURCES) \
+	$(svarog_merge_SOURCES)
 DIST_SOURCES = $(libsvarog_la_SOURCES) $(svarog_SOURCES) \
-	$(svarog_daemon_SOURCES) $(svarog_dummy_client_SOURCES)
+	$(svarog_daemon_SOURCES) $(svarog_dummy_client_SOURCES) \
+	$(svarog_merge_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -396,6 +401,7 @@ EXTRA_DIST = parser.y
 svarog_SOURCES = kuna.cc
 svarog_daemon_SOURCES = daemon.cc
 svarog_dummy_client_SOURCES = dummy_client.cc
+svarog_merge_SOURCES = svarog_merge.cc
 lib_LTLIBRARIES = libsvarog.la
 libsvarog_la_SOURCES = scanner.l cpp_parser.cc optimizer.cc kuna_c.cc collection_of_variables.cc \
 	collection_of_values.cc variable.cc function.cc statement_if.cc collection_of_functions.cc \
@@ -412,10 +418,11 @@ libsvarog_la_SOURCES = scanner.l cpp_parser.cc optimizer.cc kuna_c.cc collection
 	configuration_scanner.l configuration_parser.cc command_input.cc command_action.cc \
 	command_belief.cc command_solve.cc command_cout_result.cc \
 	command_cout_precalculate.cc command_cout_estimate_beliefs.cc \
-	knowledge_precalculated.cc
+	knowledge_precalculated.cc query.cc
 
 svarog_LDADD = libsvarog.la @LIBREADLINE@ 
 svarog_daemon_LDADD = libsvarog.la @LIBREADLINE@ 
+svarog_merge_LDADD = libsvarog.la @LIBREADLINE@
 AM_CXXFLAGS = @CXXFLAGS@ \
 	-I.. -I../inc 
 
@@ -552,6 +559,10 @@ svarog-dummy-client$(EXEEXT): $(svarog_dummy_client_OBJECTS) $(svarog_dummy_clie
 	@rm -f svarog-dummy-client$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(svarog_dummy_client_OBJECTS) $(svarog_dummy_client_LDADD) $(LIBS)
 
+svarog-merge$(EXEEXT): $(svarog_merge_OBJECTS) $(svarog_merge_DEPENDENCIES) $(EXTRA_svarog_merge_DEPENDENCIES) 
+	@rm -f svarog-merge$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(svarog_merge_OBJECTS) $(svarog_merge_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -605,11 +616,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logical_expression_not.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logical_expression_or.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanner.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_if.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statement_return.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/svarog_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value_or_something_else.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/visible_state.Plo@am__quote@

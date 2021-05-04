@@ -238,6 +238,8 @@ public:
 	
 };
 
+	class optimizer;
+
     /**
     * An auxilliary class derived from a map<variable*,value*>.
     * It is used to manipulate the queries.
@@ -252,30 +254,17 @@ public:
 		std::list<variable*> list_of_query_variables; // not owned
 		
 		public:
-		query(std::vector<variable*>& v, std::vector<value*>& w): 
-			vector_of_variables(v), vector_of_values(w) {}
+		query(std::vector<variable*>& v, std::vector<value*>& w);
 			
-		void assert_query_fact(variable* v, value * w)
-        {
-			list_of_query_variables.push_back(v);
-            insert(std::pair<variable*, value*>(v, w));
-        }
+		void assert_query_fact(variable* v, value * w);
 
-        void report_kuna(std::ostream & s) const
-		{
-			s << "{";
-			bool first = true;
-			for (std::list<variable*>::const_iterator i(list_of_query_variables.begin()); i!=list_of_query_variables.end(); i++)
-			{
-				if (!first) s << ",";
-				s << (*i)->get_name() << "=>" << at(*i)->get_name();
-				first = false;
-			}
-			s << "}";
-		}
+        void report_kuna(std::ostream & s) const;
+		
+		query * get_copy(optimizer & target) const;
+		
+		bool get_equal(const query & q) const;
 	};
 
-	class optimizer;
 	
 	class value_or_something_else
 	{
@@ -732,6 +721,10 @@ public:
 					}
 					const query* get_query() const { return my_query; }
 					float get_probability() const { return probability; }
+					
+					void report_kuna(std::ostream & s) const;
+					
+					belief_case * get_copy(optimizer & target) const;
 				};
 			private:
 				std::list<belief_case*> list_of_belief_cases; // owned
@@ -751,15 +744,27 @@ public:
 				float get_distance(const belief & b) const;
 				
 				const action* get_action() const { return my_action; }
+				
+				void report_kuna(std::ostream & s) const;
+				
+				on_belief* get_copy(optimizer & target) const;
 			};
 			private:
 			query * my_query; // owned
 			
 			std::list<on_belief *> list_of_objects_on_belief; // owned
 			
+			float amount_of_possible_states, max_amount_of_beliefs;
+			
+			bool too_complex;
+			
 			public:
 				
-			on_visible_state(query * q): my_query(q) {}
+			on_visible_state(query * q): 
+				my_query{q}, 
+				amount_of_possible_states{0.0f},
+				max_amount_of_beliefs{0.0f},
+				too_complex{false} {}
 			~on_visible_state();
 			
 			void add_on_belief(on_belief * i) { list_of_objects_on_belief.push_back(i); }
@@ -768,6 +773,16 @@ public:
 			{ return list_of_objects_on_belief; }
 			
 			const query* get_query() const { return my_query; }
+
+			void report_kuna(std::ostream & s) const;
+			
+			on_visible_state* get_copy(optimizer & target) const;
+			
+			void set_amount_of_possible_states(float a) { amount_of_possible_states = a; }
+			
+			void set_max_amount_of_beliefs(float m) { max_amount_of_beliefs = m; }
+			
+			void set_too_complex(bool t) { too_complex = t; }
 		};
 		
 		private:
@@ -798,7 +813,18 @@ public:
 		 */
 		void learn(optimizer & o);
 		
+		/**
+		 * Return the on_visible_state object corresponding with the visible state.
+		 * This function can return nullptr.
+		 */
 		const on_visible_state* get_object_on_visible_state(const visible_state & x) const;
+		
+		/**
+		 * Merge the knowledge precalculated.
+		 */
+		void merge(const knowledge_precalculated & k, optimizer & target);
+		
+		void report_kuna(std::ostream & s) const;
 	};
 	
 	class knowledge_impossible
@@ -1654,6 +1680,13 @@ public:
 		void make_model();
 		
 		void run();
+		
+		void report_kuna(std::ostream & s) const;
+		
+		/**
+		 * Merge precalculated knowledge.
+		 */
+		void merge(const optimizer & o);
 		
 		/**
 		 * This function fills the map m with the pairs (variable,value) corresponding with the input variable values.

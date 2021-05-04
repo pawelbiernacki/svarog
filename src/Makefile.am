@@ -1,6 +1,6 @@
 EXTRA_DIST = parser.y
 
-bin_PROGRAMS = svarog svarog-daemon svarog-dummy-client
+bin_PROGRAMS = svarog svarog-daemon svarog-dummy-client svarog-merge
 
 svarog_SOURCES = kuna.cc
 
@@ -8,6 +8,7 @@ svarog_daemon_SOURCES = daemon.cc
 
 svarog_dummy_client_SOURCES = dummy_client.cc
 
+svarog_merge_SOURCES = svarog_merge.cc
 
 lib_LTLIBRARIES = libsvarog.la
 
@@ -26,11 +27,13 @@ libsvarog_la_SOURCES = scanner.l cpp_parser.cc optimizer.cc kuna_c.cc collection
 	configuration_scanner.l configuration_parser.cc command_input.cc command_action.cc \
 	command_belief.cc command_solve.cc command_cout_result.cc \
 	command_cout_precalculate.cc command_cout_estimate_beliefs.cc \
-	knowledge_precalculated.cc
+	knowledge_precalculated.cc query.cc
 
 svarog_LDADD = libsvarog.la @LIBREADLINE@ 
 
 svarog_daemon_LDADD = libsvarog.la @LIBREADLINE@ 
+
+svarog_merge_LDADD = libsvarog.la @LIBREADLINE@
 
 AM_CXXFLAGS = @CXXFLAGS@ \
 	-I.. -I../inc 

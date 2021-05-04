@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([svarog], [0.0.4], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
+AC_INIT([svarog], [0.0.5], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
 AC_CONFIG_SRCDIR([src/kuna.cc])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE()

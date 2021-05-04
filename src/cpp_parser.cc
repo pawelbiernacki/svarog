@@ -1762,6 +1762,7 @@ int cpp_parser::parse_knowledge_precalculated_on_visible_state(knowledge_precalc
 					PARSING_ERROR(i, "<float>");
 					return -1;
 				}
+				target->set_amount_of_possible_states(yylval.value_float);
 				
 				i = lex();
 				if (i != ';')
@@ -1790,6 +1791,8 @@ int cpp_parser::parse_knowledge_precalculated_on_visible_state(knowledge_precalc
 					return -1;
 				}
 				
+				target->set_max_amount_of_beliefs(yylval.value_float);
+				
 				i = lex();
 				if (i != ';')
 				{
@@ -1814,6 +1817,9 @@ int cpp_parser::parse_knowledge_precalculated_on_visible_state(knowledge_precalc
 				PARSING_ERROR(i, "complex");
 				return -1;
 			}
+			
+			target->set_too_complex(true);
+			
 			i = lex();
 			if (i != ';')
 			{

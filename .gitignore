@@ -15,5 +15,6 @@ src/parser.tab.h
 src/svarog
 src/svarog-daemon
 src/svarog-dummy-client
+src/svarog-merge
 stamp-h1
 

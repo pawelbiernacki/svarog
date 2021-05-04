@@ -1,3 +1,20 @@
+version 0.0.5:
+	There is a new program: svarog-merge. It takes two filenames as arguments:
+	
+	svarog-merge <file1> <file2>
+	
+
+	It merges the precalculated knowledge (provided it has the same depth and granularity).
+	Then it prints out the result specification (without the commands) to the standard output.
+	
+	
+	svarog has a new command:
+	
+	cout << precalculate(depth,granularity,{...}) << eol;
+	
+	with {...} being a query describing a visible state.
+	It works like normal precalculate but does the calculations for the given visible state only. The results can be merged with the svarog-merge tool.
+
 version 0.0.4:
 	svarog has a new command:
 
