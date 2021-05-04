@@ -2506,6 +2506,27 @@ int cpp_parser::parse_commands()
 
 
 				i = lex();
+				
+				if (i == ',')
+				{
+					// extra parameter - query
+					query *qi = new query(((optimizer*)kuna_optimizer)->v.get_vector_of_variables(), ((optimizer*)kuna_optimizer)->w.get_vector_of_values());
+					if (parse_query(*qi) == -1)
+					{
+						delete qi;
+						return -1;
+					}
+					c->set_precalculate_query(qi);
+					
+					i = lex();
+					if (i != ')')
+					{
+						PARSING_ERROR(i, ")");
+						return -1;
+					}
+					
+				}
+				else
 				if (i != ')')
 				{
 					PARSING_ERROR(i, ")");

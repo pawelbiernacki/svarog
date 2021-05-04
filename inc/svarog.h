@@ -1014,7 +1014,6 @@ public:
 		action * get(const std::map<variable*, value*> & m);
 	};
 	
-	class visible_state;
 	
 	/**
 	 * A state is an item within a visible state. A state contains a map from a (hidden)
@@ -1381,6 +1380,9 @@ public:
 		 */
 		static constexpr int amount_of_beliefs_limit = 1024;
 		
+		query * precalculate_query; // owned
+		
+		
 		float get_amount_of_possible_states(const visible_state & x, optimizer & o) const;
 		
 		float get_max_amount_of_beliefs(const visible_state & x, optimizer & o) const;
@@ -1395,8 +1397,13 @@ public:
 
 		public:
 		command_cout_precalculate(int d, int g): 
-			depth{d}, granularity{g} {} 
+			depth{d}, granularity{g}, precalculate_query{nullptr} {} 
+			
+		virtual ~command_cout_precalculate();
+		
 		virtual void execute(optimizer & o) const;
+		
+		void set_precalculate_query(query * q) { precalculate_query = q; }
 	};
 
 	class command_cout_estimate_beliefs: public command_cout_precalculate

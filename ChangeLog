@@ -14,3 +14,6 @@ YYYY-MM-DD
 2020-10-14	a new example (example3_dorban.svarog)
 2021-04-26	a new command - cout << precalculate(depth,granularity) << eol;
 2021-04-30	release 0.0.4
+2021-05-05	release 0.0.5
+			a new tool: svarog-merge
+			extending the precalculate command

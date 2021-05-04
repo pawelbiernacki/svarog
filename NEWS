@@ -5,6 +5,7 @@ version 0.0.5:
 	
 
 	It merges the precalculated knowledge (provided it has the same depth and granularity).
+	All entries "on visible state" present in file2 but not in file1 are added.
 	Then it prints out the result specification (without the commands) to the standard output.
 	
 	

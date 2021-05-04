@@ -254,6 +254,11 @@ void command_cout_precalculate::execute(optimizer & o) const
 					
 	for (auto i(o.vs.get_list_of_visible_states().begin()); i!=o.vs.get_list_of_visible_states().end(); ++i)
 	{
+		if (precalculate_query && !(*i)->get_match(*precalculate_query))
+		{
+			continue;
+		}
+		
 		if (!get_any_state_is_possible(**i, o))
 		{
 			continue;
@@ -314,4 +319,12 @@ void command_cout_precalculate::execute(optimizer & o) const
 	
 	std::cout << "}\n";
 	std::cout << "}\n";
+}
+
+
+command_cout_precalculate::~command_cout_precalculate()
+{
+	if (precalculate_query)
+		delete precalculate_query;
+	precalculate_query = nullptr;
 }
