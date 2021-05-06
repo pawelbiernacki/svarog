@@ -1,6 +1,6 @@
 
 
-SUBDIRS = etc examples inc src
+SUBDIRS = etc examples inc perl src
 
 # Install the pkg-config file; the directory is set using
 # PKG_INSTALLDIR in configure.ac.

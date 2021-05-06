@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([svarog], [0.0.5], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
+AC_INIT([svarog], [0.0.6], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
 AC_CONFIG_SRCDIR([src/kuna.cc])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE()
@@ -30,5 +30,11 @@ AC_DEFINE([HAVE_LIBREADLINE], [1], [Define if you have libreadline])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_CONFIG_FILES([Makefile inc/Makefile etc/Makefile examples/Makefile src/Makefile libsvarog.pc])
+AC_CONFIG_FILES([Makefile 
+	inc/Makefile 
+	etc/Makefile 
+	examples/Makefile 
+	perl/Makefile 
+	src/Makefile 
+	libsvarog.pc])
 AC_OUTPUT
