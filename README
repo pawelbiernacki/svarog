@@ -3,11 +3,12 @@ An experimental AI language based on an algorithm with the hidden variables.
 
 See www.perkun.org for svarog documentation.
 
-This package contains three programs and a library.
+This package contains four programs and a library.
 
 - svarog 				- a Svarog interpreter
 - svarog-daemon			- a daemon to be used when multiple machines are available
 - svarog-dummy-client	- an auxilliary program to connect to svarog-daemon
+- svarog-merge			- a tool to merge precalculated knowledge from two files
 - libsvarog				- a C++ library to use Svarog in your own programs
 
 If the machine running svarog (the interpreter or any program based on it) has a section "servers"

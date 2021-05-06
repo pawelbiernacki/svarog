@@ -1,3 +1,14 @@
+version 0.0.6:
+	There are four Perl scripts added:
+	- svarog_generate_control_shell.pl
+	- svarog_generate_merge_shell.pl
+	- svarog_generate_precalculate_shell.pl
+	- svarog_generate_precalculate_tasks.pl
+	
+	They can be used to parallelize the precalculations for a given Svarog 
+	specification.
+	
+
 version 0.0.5:
 	There is a new program: svarog-merge. It takes two filenames as arguments:
 	

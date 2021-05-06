@@ -17,3 +17,5 @@ YYYY-MM-DD
 2021-05-05	release 0.0.5
 			a new tool: svarog-merge
 			extending the precalculate command
+2021-05-06	release 0.0.6
+			four Perl scripts for parallelizing the precalculations
