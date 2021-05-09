@@ -97,6 +97,8 @@ void collection_of_visible_states::populate(optimizer & o)
 			{
 				s->insert(vector_of_input_variables[j], *map_input_variable_to_value[vector_of_input_variables[j]]);
 			}
+			
+			s->check_whether_it_is_possible();
 		}
 		
 		//s->report(std::cout);

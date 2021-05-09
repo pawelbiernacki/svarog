@@ -1098,6 +1098,8 @@ public:
 		
 		int considering_counter;
 		
+		bool is_possible;
+		
 		bool get_allowed(const std::map<variable*, std::vector<value*>::const_iterator> & m) const;
 	
 		/**
@@ -1130,6 +1132,12 @@ public:
 		 * the states are destroyed.
 		 */
 		void consider_end();
+		
+		/**
+		 * Stores the information whether the visible state is possible
+		 * in a boolean flag.
+		 */
+		void check_whether_it_is_possible();
 		
 		void insert(variable * v, value * w) { map_input_variable_to_value.insert(std::pair<variable*,value*>(v, w)); }		
 	

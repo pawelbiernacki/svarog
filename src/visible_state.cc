@@ -27,13 +27,14 @@ visible_state::visible_state(collection_of_variables & v, collection_of_values &
 			my_actions(a),
 			my_visible_states(q),
 			my_optimizer(o),
-			considering_counter{0}
+			considering_counter{0},
+			is_possible{true}
 {
 }
 
 void visible_state::consider_begin()
 {
-	if (considering_counter == 0)
+	if (considering_counter == 0 && is_possible)
 	{
 		populate();
 	}
@@ -48,11 +49,31 @@ void visible_state::consider_end()
 	}
 	considering_counter --;
 	
-	if (considering_counter == 0)
+	if (considering_counter == 0 && is_possible)
 	{
 		depopulate();
 	}
 }
+
+
+void visible_state::check_whether_it_is_possible()
+{
+	consider_visible_state cvs{*this};
+	is_possible = false;
+	for (auto i(list_of_states.begin()); i!=list_of_states.end(); i++)
+	{
+		my_optimizer.evaluating_expressions_mode = optimizer::GET_POSSIBLE;
+		my_optimizer.get_possible_state1 = *i;
+		my_optimizer.get_possible_state2 = nullptr;
+					
+		if ((*i)->get_possible())
+		{
+			is_possible = true;
+			break;
+		}
+	}
+}
+
 
 visible_state::~visible_state()
 {
