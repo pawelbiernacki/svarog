@@ -22,11 +22,13 @@ using namespace svarog;
 
 void command_cout_states::execute(optimizer & o) const
 {
-	for (std::list<visible_state*>::const_iterator i(o.vs.get_list_of_visible_states().begin()); i!=o.vs.get_list_of_visible_states().end(); i++)
+	for (std::list<visible_state*>::iterator i(o.vs.get_list_of_visible_states().begin()); i!=o.vs.get_list_of_visible_states().end(); i++)
 	{
 		std::cout << "VISIBLE STATE ";
 		(*i)->report_kuna(std::cout);
 		std::cout << "\n";
+		
+		consider_visible_state cvs{**i};
 		
 		std::list<state*> & l((*i)->get_list_of_states());
 		for (std::list<state*>::const_iterator j(l.begin()); j!=l.end(); j++)

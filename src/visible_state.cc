@@ -20,6 +20,40 @@
 #include "svarog.h"
 using namespace svarog;
 
+
+visible_state::visible_state(collection_of_variables & v, collection_of_values & w, collection_of_actions & a, collection_of_visible_states & q, optimizer & o): 
+			my_variables(v),
+			my_values(w),
+			my_actions(a),
+			my_visible_states(q),
+			my_optimizer(o),
+			considering_counter{0}
+{
+}
+
+void visible_state::consider_begin()
+{
+	if (considering_counter == 0)
+	{
+		populate();
+	}
+	considering_counter ++;
+}
+
+void visible_state::consider_end()
+{
+	if (considering_counter == 0)
+	{
+		throw std::runtime_error("internal error"); // this should never happen
+	}
+	considering_counter --;
+	
+	if (considering_counter == 0)
+	{
+		depopulate();
+	}
+}
+
 visible_state::~visible_state()
 {
 	for (std::list<state*>::const_iterator i(list_of_states.begin()); i!=list_of_states.end(); i++)
@@ -110,7 +144,14 @@ bool visible_state::get_allowed(const std::map<variable*, std::vector<value*>::c
 	return true;
 }
 
-
+void visible_state::depopulate()
+{
+	for (auto i(list_of_states.begin()); i!=list_of_states.end(); i++)
+	{
+		delete *i;
+	}
+	list_of_states.clear();	
+}
 
 void visible_state::populate()
 {

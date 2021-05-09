@@ -1079,7 +1079,7 @@ public:
 	};
 	
 	class collection_of_visible_states;
-	
+		
 	/**
 	 * A visible state represents a map from input variable to values and is at the same
 	 * time a collection of states.
@@ -1096,23 +1096,42 @@ public:
 		std::list<state*> list_of_states; // owned
 		std::map<variable*,value*> map_input_variable_to_value;
 		
+		int considering_counter;
+		
 		bool get_allowed(const std::map<variable*, std::vector<value*>::const_iterator> & m) const;
 	
+		/**
+		 * Create all the states for this visible state.
+		 */
+		void populate();
+		
+		/**
+		 * Destroy all the states for this visible state.
+		 */
+		void depopulate();
+
+		
 		public:
-		visible_state(collection_of_variables & v, collection_of_values & w, collection_of_actions & a, collection_of_visible_states & q, optimizer & o): 
-			my_variables(v),
-			my_values(w),
-			my_actions(a),
-			my_visible_states(q),
-			my_optimizer(o)
-			{
-			}
+		visible_state(collection_of_variables & v, collection_of_values & w, collection_of_actions & a, collection_of_visible_states & q, optimizer & o);
 		
 		~visible_state();
 		
-		void insert(variable * v, value * w) { map_input_variable_to_value.insert(std::pair<variable*,value*>(v, w)); }	
+		/**
+		 * When considering a visible state then its considering_counter is 
+		 * incremented. If it was 0 before the incrementation then 
+		 * the visible state is populated with the states.
+		 * 
+		 */
+		void consider_begin();
 		
-		void populate();
+		/**
+		 * When we stop considering a visible state then its considering_counter
+		 * is decreased. If it is 0 after the decrementation then
+		 * the states are destroyed.
+		 */
+		void consider_end();
+		
+		void insert(variable * v, value * w) { map_input_variable_to_value.insert(std::pair<variable*,value*>(v, w)); }		
 	
 		void report_kuna(std::ostream & s) const;
 		
@@ -1148,6 +1167,29 @@ public:
 
 	};
 
+	/**
+	 * This object begins considering a visible state on constructor and
+	 * ends it on destructor. It is safer than for example calling the 
+	 * methods consider_begin and consider_end directly. 
+	 */
+	class consider_visible_state
+	{
+	private:
+		visible_state & my_visible_state;
+	public:
+		consider_visible_state(visible_state & s): my_visible_state{s}
+		{
+			my_visible_state.consider_begin();
+		}
+		~consider_visible_state()
+		{
+			my_visible_state.consider_end();
+		}
+	};
+	
+
+	
+	
 	
 	/**
 	 * A collection of visible states. It contains a list of visible states and
@@ -1247,6 +1289,8 @@ public:
 		void make_uniform();
 	
 		const visible_state & get_visible_state() const { return my_visible_state; }
+		
+		visible_state & get_visible_state() { return my_visible_state; }
 	};
 
 	
@@ -1570,7 +1614,7 @@ public:
 		
 		void clear_tasks();
 		
-		std::string get_partial_task_specification(const belief & b, int n, const action * a) const;
+		std::string get_partial_task_specification(belief & b, int n, const action * a) const;
 		
 		int file_counter;	// to store the partial specification files
 		
@@ -1724,11 +1768,11 @@ public:
 		
 		float get_consequence_probability(const belief & b1, const action & a, const visible_state & vs);
 		
-		float get_payoff_expected_value_for_consequences(const belief & b1, int n, const action & a);
+		float get_payoff_expected_value_for_consequences(belief & b1, int n, const action & a);
 		
-		const action * get_optimal_action(const belief & b, int n);
+		const action * get_optimal_action(belief & b, int n);
 		
-		const action * get_optimal_action_using_servers(const belief & b, int n);
+		const action * get_optimal_action_using_servers(belief & b, int n);
 		
 		float solve(int n);
 		

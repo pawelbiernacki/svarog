@@ -122,6 +122,8 @@ void command_test_with_query::execute(optimizer & o) const
 		i->report_kuna(std::cout);
 		std::cout << "\n\n";
 		
+		consider_visible_state cvs{*i};
+		
 		state * j = i->get(*my_query);
 		if (j)
 		{

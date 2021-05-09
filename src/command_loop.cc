@@ -55,6 +55,7 @@ void command_loop::execute(optimizer & o) const
 		
 		visible_state * s = o.vs.get(m);
 		
+		s->consider_begin();
 		
 		o.current_belief = new belief(*s, o);
 		
@@ -76,8 +77,14 @@ void command_loop::execute(optimizer & o) const
 			{
 				std::cerr << "exception caught\n";
 				if (o.former_belief)
+				{
+					visible_state &s2{o.former_belief->get_visible_state()};
 					delete o.former_belief;
+					s2.consider_end();
+				}
+				visible_state &s3{o.current_belief->get_visible_state()};
 				delete o.current_belief;
+				s3.consider_end();
 				throw e;
 			}
 		}
@@ -106,7 +113,11 @@ void command_loop::execute(optimizer & o) const
 		if (o.former_belief)
 		{
 			//std::cout << "delete " << optimizer->former_belief << "\n";
+			
+			visible_state &s2{o.former_belief->get_visible_state()};
 			delete o.former_belief;
+			
+			s2.consider_end();
 		}
 		o.former_belief = o.current_belief;
 		
@@ -114,6 +125,9 @@ void command_loop::execute(optimizer & o) const
 	}
 	while (true);
 
+	visible_state &s2{o.former_belief->get_visible_state()};
 	delete o.former_belief;
+	s2.consider_end();
+	
 	o.former_belief = NULL;
 }

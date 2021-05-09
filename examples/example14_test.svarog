@@ -302,23 +302,5 @@ knowledge
 	}
 }
 
-input
-{has_dorban_won_a_fight=>none,where_is_dorban=>place_Wyzima,can_dorban_see_pregor=>false,
-can_dorban_see_vampire=>false,is_pregor_following_dorban=>false};
+test();
 
-
-
-
-belief {
-case {where_is_vampire=>place_Novigrad,where_is_pregor=>place_Novigrad}:0.250000;
-case {where_is_vampire=>place_Novigrad,where_is_pregor=>place_Shadizar}:0.250000;
-case {where_is_vampire=>place_Shadizar,where_is_pregor=>place_Novigrad}:0.250000;
-case {where_is_vampire=>place_Shadizar,where_is_pregor=>place_Shadizar}: 0.250000;
-};
-
-
-action {optimal_action=>goto_Novigrad};
-
-solve(4);
-
-cout << result << eol;

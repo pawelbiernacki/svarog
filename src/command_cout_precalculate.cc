@@ -259,6 +259,8 @@ void command_cout_precalculate::execute(optimizer & o) const
 			continue;
 		}
 		
+		consider_visible_state cvs{**i};
+		
 		if (!get_any_state_is_possible(**i, o))
 		{
 			continue;

@@ -1,3 +1,8 @@
+version 0.0.7
+	Now much bigger specifications should be allowed, since we do not
+	populate the visible states with all possible states in the beginning.
+	Instead the states are generated when a visible state is "considered".
+
 version 0.0.6:
 	There are four Perl scripts added:
 	- svarog_generate_control_shell.pl

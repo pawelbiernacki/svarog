@@ -510,15 +510,16 @@ float optimizer::get_consequence_probability(const belief & b1, const action & a
 }
 
 
-float optimizer::get_payoff_expected_value_for_consequences(const belief & b1, int n, const action & a)
+float optimizer::get_payoff_expected_value_for_consequences(belief & b1, int n, const action & a)
 {
 	if (n <= 0)
 		return 0.0;
 	
-	const std::list<visible_state*> &l(b1.get_visible_state().get_visible_states().get_list_of_visible_states());
+	std::list<visible_state*> &l(b1.get_visible_state().get_visible_states().get_list_of_visible_states());
 	float sum = 0.0;
-	for (std::list<visible_state*>::const_iterator i(l.begin()); i!=l.end(); i++)
+	for (auto i(l.begin()); i!=l.end(); i++)
 	{
+		consider_visible_state cvs(**i);
 		/*
 			std::cout << "for consequence " << *i << "\n";
 			(*i)->report_kuna(std::cout);
@@ -574,7 +575,7 @@ float optimizer::solve(int n)
 }
 
 
-std::string optimizer::get_partial_task_specification(const belief & b, int n, const action * a) const
+std::string optimizer::get_partial_task_specification(belief & b, int n, const action * a) const
 {
 	std::stringstream s;
 	
@@ -644,7 +645,7 @@ std::string optimizer::get_partial_task_specification(const belief & b, int n, c
 	
 	s << "input {";
 	
-	const visible_state & vs{b.get_visible_state()};
+	visible_state & vs{b.get_visible_state()};
 	
 	first = true;
 	for (auto i(v.get_vector_of_variables().begin()); i!=v.get_vector_of_variables().end(); i++)
@@ -669,6 +670,7 @@ std::string optimizer::get_partial_task_specification(const belief & b, int n, c
 	
 	
 	// pass belief
+	consider_visible_state cvs{vs};
 	
 	s << "belief {\n";
 	for (auto i(vs.get_list_of_states().begin()); i!=vs.get_list_of_states().end(); i++)
@@ -721,7 +723,7 @@ std::string optimizer::get_partial_task_specification(const belief & b, int n, c
 }
 
 
-const action * optimizer::get_optimal_action_using_servers(const belief & b, int n)
+const action * optimizer::get_optimal_action_using_servers(belief & b, int n)
 {
 	float max = std::numeric_limits<float>::lowest();
 	const action * argmax = nullptr;
@@ -805,7 +807,7 @@ const action * optimizer::get_optimal_action_using_servers(const belief & b, int
 
 
 
-const action * optimizer::get_optimal_action(const belief & b, int n)
+const action * optimizer::get_optimal_action(belief & b, int n)
 {
 	float max = std::numeric_limits<float>::lowest();
 	const action * argmax = nullptr;

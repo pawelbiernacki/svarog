@@ -23,15 +23,19 @@ using namespace svarog;
 void command_cout_perkun::execute(optimizer & o) const
 {
 	std::cout << "model\n{\n";
-	for (std::list<visible_state*>::const_iterator i(o.vs.get_list_of_visible_states().begin());
+	for (std::list<visible_state*>::iterator i(o.vs.get_list_of_visible_states().begin());
 		 i != o.vs.get_list_of_visible_states().end(); i++)
 	{
+		consider_visible_state cvs{**i};
+		
 		for (std::list<state*>::const_iterator j((*i)->get_list_of_states().begin()); j!=(*i)->get_list_of_states().end(); j++)
 		{
 			for (std::list<action*>::const_iterator k(o.a.get_list_of_actions().begin()); k != o.a.get_list_of_actions().end(); k++)
 			{
 				for (std::list<visible_state*>::const_iterator i2(o.vs.get_list_of_visible_states().begin()); i2 != o.vs.get_list_of_visible_states().end(); i2++)
 				{
+					consider_visible_state cvs2{**i2};
+					
 					for (std::list<state*>::const_iterator j2((*i2)->get_list_of_states().begin()); j2!=(*i2)->get_list_of_states().end(); j2++)
 					{
 						std::cout << "set({";

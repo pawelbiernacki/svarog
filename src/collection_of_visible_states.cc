@@ -92,7 +92,6 @@ void collection_of_visible_states::populate(optimizer & o)
 		if (get_allowed(map_input_variable_to_value))
 		{
 			list_of_visible_states.push_back(s = new visible_state(my_variables, my_values, my_actions, *this, o));
-			s->populate();
 
 			for (int j=0; j<vector_of_input_variables.size(); j++)
 			{

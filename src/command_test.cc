@@ -82,9 +82,10 @@ void command_test::execute_for(optimizer & o, const visible_state * i, const sta
 
 void command_test::execute(optimizer & o) const
 {
-	for (std::list<visible_state*>::const_iterator i(o.vs.get_list_of_visible_states().begin());
+	for (std::list<visible_state*>::iterator i(o.vs.get_list_of_visible_states().begin());
 		 i != o.vs.get_list_of_visible_states().end(); i++)
 	{
+		consider_visible_state cvs{**i};
 		for (std::list<state*>::const_iterator j((*i)->get_list_of_states().begin()); j!=(*i)->get_list_of_states().end(); j++)
 		{
 			execute_for(o, *i, *j);			

@@ -45,6 +45,10 @@ void command_belief::execute(optimizer & o) const
 		throw std::runtime_error("failed to find the visible state for the given initial input");
 	}
 	
+	s->consider_begin();	// there will be no consider_end
+							// the states will be cleared in 
+							// the visible state's destructor
+	
 	belief * b = new belief(*s, o);
 	
 	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); i++)
