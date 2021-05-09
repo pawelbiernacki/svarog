@@ -748,6 +748,13 @@ public:
 				void report_kuna(std::ostream & s) const;
 				
 				on_belief* get_copy(optimizer & target) const;
+				
+				/**
+				 * Returns score for this on_belief object representing a base
+				 * belief (0,0,0,...0,1,0,0,..,0) and the given belief.
+				 */
+				float get_score_for_base_belief_and_belief(const belief & b) const;
+				
 			};
 			private:
 			query * my_query; // owned
@@ -783,6 +790,8 @@ public:
 			void set_max_amount_of_beliefs(float m) { max_amount_of_beliefs = m; }
 			
 			void set_too_complex(bool t) { too_complex = t; }
+			
+			bool get_too_complex() const { return too_complex; }
 		};
 		
 		private:
@@ -1279,18 +1288,12 @@ public:
 		public:
 		belief(visible_state & v, optimizer & o): my_visible_state(v), my_optimizer(o) {}
 		float get_probability(state * s) const;
+		
+		float get_probability(const std::map<variable*, value*> & query) const;
 	
 		void set_probability(state * s, float p);
 	
-		void set_probability(const std::map<variable*, value*> & query, float p) 
-		{
-			state * s = my_visible_state.get(query);
-			if (s == NULL)
-			{
-				throw std::runtime_error("query failed");
-			}
-			set_probability(s, p);
-		}
+		void set_probability(const std::map<variable*, value*> & query, float p);
 	
 		void report_kuna(std::ostream & s) const;
 	
@@ -1420,6 +1423,9 @@ public:
 		virtual bool get_is_interactive() const;
 	};
 	
+	/**
+	 * This command is used to precalculate the knowledge.
+	 */
 	class command_cout_precalculate: public command
 	{
 		protected:
@@ -1446,6 +1452,13 @@ public:
 		void create_next_belief(belief & b, std::map<state*,int> & map_state_to_count, bool & done, bool & skip, optimizer & o) const;
 		
 		virtual void on_belief(belief & b, optimizer & o) const;
+		
+		/**
+		 * Generate the beliefs for the base tuples only. For example
+		 * in three dimensions they are (0,0,1),(0,1,0) and (1,0,0).
+		 * It is necessary when there are too many dimensions.
+		 */
+		void generate_base_beliefs(visible_state & vs, optimizer & o) const;
 
 		public:
 		command_cout_precalculate(int d, int g): 

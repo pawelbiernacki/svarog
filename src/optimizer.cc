@@ -823,16 +823,54 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 			
 			if (!j) continue; 
 			
-			float distance = std::numeric_limits<float>::max();
 			auto & mylist_on_belief(j->get_list_of_objects_on_belief());
-			for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
+			
+			if (j->get_too_complex())
 			{
-				float d = (*k)->get_distance(b);
-				if (d < distance)
+				std::map<const action*,float> map_action_to_score;
+	
+				// initialize the map
+				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
 				{
-					distance = d;
+					map_action_to_score.insert(std::pair<const action*,float>(*k, 0.0f));
+				}
+	
+				// use the base beliefs only
+				// increment score
+				for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
+				{
+					map_action_to_score.at((*k)->get_action()) += 
+						(*k)->get_score_for_base_belief_and_belief(b);
+				}
+				
+				// get the action with the maximal score
+				float best_score = std::numeric_limits<float>::lowest();
+				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
+				{
+					if (map_action_to_score.at(*k)>best_score)
+					{
+						best_score = map_action_to_score.at(*k);
+						argmax = *k;
+					}
+				}
+				if (argmax)
+				{
+					return argmax;
+				}
+			}
+			else
+			{
+				// find the closest belief
+				float distance = std::numeric_limits<float>::max();
+				for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
+				{
+					float d = (*k)->get_distance(b);
+					if (d < distance)
+					{
+						distance = d;
 							
-					argmax = (*k)->get_action();
+						argmax = (*k)->get_action();
+					}
 				}
 			}
 					

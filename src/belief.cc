@@ -48,6 +48,19 @@ float belief::get_probability(state * s) const
 }
 
 
+float belief::get_probability(const std::map<variable*, value*> & query) const
+{
+	state * s = my_visible_state.get(query);
+	if (s == nullptr)
+	{
+		throw std::runtime_error("query failed");
+	}
+	
+	return get_probability(s);
+}
+
+
+
 void belief::set_probability(state * s, float p) 
 { 
 	if (map_state_to_probability.find(s) == map_state_to_probability.end())
@@ -58,6 +71,17 @@ void belief::set_probability(state * s, float p)
 	{
 		map_state_to_probability.at(s) = p;
 	}
+}
+
+
+void belief::set_probability(const std::map<variable*, value*> & query, float p) 
+{
+	state * s = my_visible_state.get(query);
+	if (s == nullptr)
+	{
+		throw std::runtime_error("query failed");
+	}
+	set_probability(s, p);
 }
 
 

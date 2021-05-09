@@ -212,7 +212,22 @@ knowledge_precalculated::on_visible_state::on_belief* knowledge_precalculated::o
 	return result;
 }
 
-				
+float knowledge_precalculated::on_visible_state::on_belief::get_score_for_base_belief_and_belief(const belief & b) const
+{
+	float result = 0.0f;
+	
+	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
+	{
+		// we assume this on_belief represents a base belief
+		// i.e. it equals 0.0 for all states but one, for which it equals 1.0
+		
+		result += (*i)->get_probability()*b.get_probability(*(*i)->get_query());
+	}
+	
+	return result;
+}
+
+
 void knowledge_precalculated::on_visible_state::on_belief::belief_case::report_kuna(std::ostream & s) const
 {
 	s << "case ";

@@ -181,6 +181,48 @@ void command_cout_precalculate::on_belief(belief & b, optimizer & o) const
 	std::cout << ";\n";
 }
 
+void command_cout_precalculate::generate_base_beliefs(visible_state & vs, optimizer & o) const
+{
+	belief b(vs, o);
+		
+	// initialize belief
+	for (auto j(vs.get_list_of_states().begin()); 
+		 j!=vs.get_list_of_states().end(); j++)
+	{
+		b.set_probability(*j, 0.0);
+	}
+	
+	for (auto j(vs.get_list_of_states().begin()); 
+		 j!=vs.get_list_of_states().end(); j++)
+	{
+		b.set_probability(*j, 1.0);
+
+		o.evaluating_expressions_mode = optimizer::GET_POSSIBLE;
+		o.get_possible_state1 = *j;
+		o.get_possible_state2 = NULL;
+
+		if ((*j)->get_possible())
+		{
+			std::cout << "on belief (";
+			b.report_kuna(std::cout);
+			std::cout << ")\n		{\n";
+				
+			on_belief(b, o);
+			
+			std::cout << "		}\n";
+		}
+		else
+		{
+			std::cout << "# base belief for state ";
+			(*j)->report_kuna(std::cout);
+			std::cout << " is impossible\n";
+		}
+		
+		b.set_probability(*j, 0.0);
+	}
+}
+
+
 void command_cout_precalculate::execute(optimizer & o) const
 {
 	std::cout << "#!svarog\n";
@@ -279,6 +321,9 @@ void command_cout_precalculate::execute(optimizer & o) const
 		if (max_amount_of_beliefs > amount_of_beliefs_limit)
 		{
 			std::cout << "too complex;\n";
+			
+			generate_base_beliefs(**i, o);
+			
 			std::cout << "	}\n";
 			continue;
 		}
