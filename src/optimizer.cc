@@ -843,14 +843,29 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 						(*k)->get_score_for_base_belief_and_belief(b);
 				}
 				
-				// get the action with the maximal score
+				if (n == 3)
+					std::cout << "it is too complex, using base approximation\n";
+				
+				// consider only the actions with the positive score
 				float best_score = std::numeric_limits<float>::lowest();
 				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
 				{
-					if (map_action_to_score.at(*k)>best_score)
+					if (map_action_to_score.at(*k)>0.0f)
 					{
-						best_score = map_action_to_score.at(*k);
-						argmax = *k;
+						if (n == 3)
+						{
+							std::cout << "consider action ";
+							(*k)->report_kuna(std::cout);
+							std::cout << " score " << map_action_to_score.at(*k) << "\n";
+						}
+						
+						float m = get_payoff_expected_value_for_consequences(b, n, **k);
+		
+						if (m > best_score || argmax==nullptr)
+						{
+							best_score = m;
+							argmax = *k;
+						}
 					}
 				}
 				if (argmax)
@@ -895,7 +910,7 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 				
 		float m = get_payoff_expected_value_for_consequences(b, n, **i);
 		
-		if (m > max || argmax==NULL)
+		if (m > max || argmax==nullptr)
 		{
 			max = m;
 			argmax = *i;
