@@ -730,9 +730,17 @@ public:
 				std::list<belief_case*> list_of_belief_cases; // owned
 				query * my_action_query; // owned
 				const action * my_action; // not owned
+				float action_value;
 			public:
-				on_belief(): my_action_query{nullptr}, my_action{nullptr} {}
+				on_belief(): 
+							my_action_query{nullptr}, 
+							my_action{nullptr}, 	
+							action_value{0.0f} {}
+				
 				~on_belief();
+				
+				float get_action_value() const { return action_value; }
+				void set_action_value(float v) { action_value = v; }
 				void add_belief_case(belief_case * i) { list_of_belief_cases.push_back(i); }
 				void set_action_query(query * q) { my_action_query = q; }
 				void set_action(const action * a) { my_action = a; }
@@ -1791,9 +1799,9 @@ public:
 		
 		float get_payoff_expected_value_for_consequences(belief & b1, int n, const action & a);
 		
-		const action * get_optimal_action(belief & b, int n);
+		const action * get_optimal_action(belief & b, int n, float & score);
 		
-		const action * get_optimal_action_using_servers(belief & b, int n);
+		const action * get_optimal_action_using_servers(belief & b, int n, float & score);
 		
 		float solve(int n);
 		

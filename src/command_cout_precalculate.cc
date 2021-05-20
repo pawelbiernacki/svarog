@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "svarog.h"
 #include "config.h"
+#include <iomanip>
 using namespace svarog;
 
 
@@ -168,7 +169,8 @@ void command_cout_precalculate::create_next_belief(belief & b, std::map<state*,i
 
 void command_cout_precalculate::on_belief(belief & b, optimizer & o) const
 {
-	const action * a = o.get_optimal_action(b, depth);
+	float score = 0.0f;
+	const action * a = o.get_optimal_action(b, depth, score);
 				
 	if (a == nullptr)
 	{
@@ -178,6 +180,9 @@ void command_cout_precalculate::on_belief(belief & b, optimizer & o) const
 			
 	std::cout << "		action ";
 	a->report_kuna(std::cout);
+	
+	std::cout << " : " << std::dec << std::showpoint << std::setw(10)
+		<< score;
 	std::cout << ";\n";
 }
 

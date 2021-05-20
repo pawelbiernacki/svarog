@@ -91,14 +91,15 @@ void command_loop::execute(optimizer & o) const
 		
 		o.print_belief(*o.current_belief);
 		const action * a;
+		float score = 0.0f;
 		
 		if (o.my_configuration.get_has_servers())
 		{
-			a = o.get_optimal_action_using_servers(*o.current_belief, depth);
+			a = o.get_optimal_action_using_servers(*o.current_belief, depth, score);
 		}
 		else
 		{
-			a = o.get_optimal_action(*o.current_belief, depth);
+			a = o.get_optimal_action(*o.current_belief, depth, score);
 		}
 			
 		if (a == NULL)

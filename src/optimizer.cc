@@ -27,6 +27,7 @@
 #include <readline/history.h>
 #include <limits>
 #include <fstream>
+#include <algorithm>
 
 using namespace svarog;
 
@@ -534,8 +535,10 @@ float optimizer::get_payoff_expected_value_for_consequences(belief & b1, int n, 
 			// populate the belief
 			populate_belief_for_consequence(b1, a, **i, b2);
 		
+			float score = 0.0f;
+			
 			// get optimal action
-			const action * a1 = get_optimal_action(b2, n-1);
+			const action * a1 = get_optimal_action(b2, n-1, score);
 			
 			sum += cp*((*i)->get_payoff()+get_payoff_expected_value_for_consequences(b2, n-1, *a1));
 		}
@@ -723,7 +726,7 @@ std::string optimizer::get_partial_task_specification(belief & b, int n, const a
 }
 
 
-const action * optimizer::get_optimal_action_using_servers(belief & b, int n)
+const action * optimizer::get_optimal_action_using_servers(belief & b, int n, float & score)
 {
 	float max = std::numeric_limits<float>::lowest();
 	const action * argmax = nullptr;
@@ -799,6 +802,7 @@ const action * optimizer::get_optimal_action_using_servers(belief & b, int n)
 		{
 			max = m;
 			argmax = (*i)->get_action();
+			score = max;
 		}
 	}
 	clear_tasks();
@@ -807,7 +811,7 @@ const action * optimizer::get_optimal_action_using_servers(belief & b, int n)
 
 
 
-const action * optimizer::get_optimal_action(belief & b, int n)
+const action * optimizer::get_optimal_action(belief & b, int n, float & score)
 {
 	float max = std::numeric_limits<float>::lowest();
 	const action * argmax = nullptr;
@@ -830,22 +834,18 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 				std::map<const action*,float> map_action_to_score;
 	
 				// initialize the map
-				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
-				{
-					map_action_to_score.insert(std::pair<const action*,float>(*k, 0.0f));
-				}
-	
+				std::for_each(a.get_list_of_actions().begin(), a.get_list_of_actions().end(), [&](const action * k){			map_action_to_score.insert(std::pair<const action*,float>(k,0.0f));
+				});
+				
 				// use the base beliefs only
 				// increment score
 				for (auto k(mylist_on_belief.begin()); k!=mylist_on_belief.end(); ++k)
 				{
 					map_action_to_score.at((*k)->get_action()) += 
-						(*k)->get_score_for_base_belief_and_belief(b);
+						(*k)->get_score_for_base_belief_and_belief(b)
+							*(*k)->get_action_value();
 				}
-				
-				if (n == 3)
-					std::cout << "it is too complex, using base approximation\n";
-				
+								
 				// consider only the actions with the positive score
 				float best_score = std::numeric_limits<float>::lowest();
 				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
@@ -859,12 +859,13 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 							std::cout << " score " << map_action_to_score.at(*k) << "\n";
 						}
 						
-						float m = get_payoff_expected_value_for_consequences(b, n, **k);
+						float m = map_action_to_score.at(*k);
 		
 						if (m > best_score || argmax==nullptr)
 						{
 							best_score = m;
 							argmax = *k;
+							score = best_score;
 						}
 					}
 				}
@@ -885,6 +886,7 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 						distance = d;
 							
 						argmax = (*k)->get_action();
+						score = (*k)->get_action_value();
 					}
 				}
 			}
@@ -914,6 +916,7 @@ const action * optimizer::get_optimal_action(belief & b, int n)
 		{
 			max = m;
 			argmax = *i;
+			score = max;			
 		}
 	}
 	

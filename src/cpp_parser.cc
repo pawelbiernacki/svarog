@@ -1667,6 +1667,21 @@ int cpp_parser::parse_knowledge_precalculated_on_belief(knowledge_precalculated:
 	target->set_action_query(qi);
 	
 	i = lex();
+	if (i != ':')
+	{
+		PARSING_ERROR(i, ":");
+		return -1;
+	}
+	i = lex();
+	if (i != T_FLOAT_LITERAL)
+	{
+		PARSING_ERROR(i, "<float>");
+		return -1;
+	}
+	target->set_action_value(yylval.value_float);
+	
+
+	i = lex();
 	if (i != ';')
 	{
 		PARSING_ERROR(i, ";");
