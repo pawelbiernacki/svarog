@@ -1,3 +1,13 @@
+version 0.0.8
+	When the whole space of beliefs is too large to be discretized 
+	during the precalculations then only a "base" is taken - the precalculations
+	for beliefs (0,0,..,0,1),(0,0,..,0,1,0),...,(1,0,..,0).
+	There is an algorithm to determine the best action for a regular (non-base)
+	belief. Also - the actions in the precalculated knowledge contain information
+	about their score. The score is needed by the algorithm making the "base
+	approximation".
+
+
 version 0.0.7
 	Now much bigger specifications should be allowed, since we do not
 	populate the visible states with all possible states in the beginning.
