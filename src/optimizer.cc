@@ -849,24 +849,14 @@ const action * optimizer::get_optimal_action(belief & b, int n, float & score)
 				// consider only the actions with the positive score
 				float best_score = std::numeric_limits<float>::lowest();
 				for (auto k(a.get_list_of_actions().begin());k != a.get_list_of_actions().end(); ++k)
-				{
-					if (map_action_to_score.at(*k)>0.0f)
-					{
-						if (n == 3)
-						{
-							std::cout << "consider action ";
-							(*k)->report_kuna(std::cout);
-							std::cout << " score " << map_action_to_score.at(*k) << "\n";
-						}
-						
-						float m = map_action_to_score.at(*k);
+				{						
+					float m = map_action_to_score.at(*k);
 		
-						if (m > best_score || argmax==nullptr)
-						{
-							best_score = m;
-							argmax = *k;
-							score = best_score;
-						}
+					if (m > best_score || argmax==nullptr)
+					{
+						best_score = m;
+						argmax = *k;
+						score = best_score;
 					}
 				}
 				if (argmax)

@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "svarog.h"
 #include <cassert>
+#include <iomanip>
 using namespace svarog;
 
 knowledge_precalculated::~knowledge_precalculated()
@@ -177,6 +178,8 @@ void knowledge_precalculated::on_visible_state::on_belief::report_kuna(std::ostr
 	s << "		{\n";
 	s << "		action ";
 	my_action_query->report_kuna(s);
+	s << " : " << std::dec << std::showpoint << std::setw(10)
+		<< action_value;
 	s << ";\n";
 	
 	s << "		}\n";
