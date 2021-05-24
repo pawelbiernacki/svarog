@@ -207,6 +207,7 @@ knowledge_precalculated::on_visible_state::on_belief* knowledge_precalculated::o
 	on_belief * result = new on_belief();
 	
 	result->set_action_query(my_action_query->get_copy(target));
+	result->set_action_value(get_action_value());
 	
 	for (auto i(list_of_belief_cases.begin()); i!=list_of_belief_cases.end(); ++i)
 	{
