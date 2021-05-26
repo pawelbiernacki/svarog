@@ -20,4 +20,4 @@ test5:
 # it is the same like test5, but with precalculated knowledge - much faster
 # even though the depth is set to 4
 test6:
-	svarog example10_precalculated4.svarog < example10_dorban_input1.txt
+	svarog example15_precalculated4_with_bases.svarog < example10_dorban_input1.txt
