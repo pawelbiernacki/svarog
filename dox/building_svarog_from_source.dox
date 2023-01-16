@@ -1,0 +1,15 @@
+/**
+\page building_svarog_from_source Building svarog from source
+
+svarog is a program, an interpreter of the Svarog language. It can be built from source as follows:
+
+\code
+./configure
+make
+sudo make install
+\endcode
+
+It requires a C++ compiler supporting at least C++98, plus flex and bison. 
+
+*/
+ 

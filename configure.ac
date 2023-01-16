@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([svarog], [0.0.8], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
+AC_INIT([svarog], [0.0.9], [pawel.f.biernacki@gmail.com],[],[www.perkun.org])
 AC_CONFIG_SRCDIR([src/kuna.cc])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE()
@@ -31,6 +31,7 @@ AC_DEFINE([HAVE_LIBREADLINE], [1], [Define if you have libreadline])
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile 
+    dox/Makefile
 	inc/Makefile 
 	etc/Makefile 
 	examples/Makefile 

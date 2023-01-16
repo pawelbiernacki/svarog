@@ -38,6 +38,7 @@ namespace svarog
 {
 	
 /**
+ * \class value
  * Values are objects representing the variable values.
  */
 class value
@@ -51,7 +52,9 @@ public:
 };
 
 
-/** A variable represents a signal for the player.
+/**
+ * \class variable 
+ * A variable represents a signal for the player.
  * - input variable - a visible signal
  * - hidden variable - an invisible signal
  * - output variable - an output signal (depending on the player)
@@ -88,6 +91,7 @@ public:
 
 
 /**
+ * \class input_variable
  * An input variable - variable visible to the agent.
  */
 class input_variable: public variable
@@ -125,6 +129,7 @@ public:
 };
 
 /**
+ * \class output_variable
  * An output variable - variable controlled by the agent.
  */
 class output_variable: public variable
@@ -161,6 +166,7 @@ public:
 };
 
 /**
+ * \class hidden_variable
  * A hidden variable - variable invisible to the agent.
  */
 class hidden_variable: public variable
@@ -200,6 +206,7 @@ public:
 
 
 /**
+ * \class collection_of_values
  * Collection of values contains a vector of values.
  * Some other classes must be aware of it.
  */
@@ -218,7 +225,8 @@ public:
 	value* get_value(const char * v);
 };
 	
-	/**
+/**
+ * \class collection_of_variables
  * This is a collection of variables. Some other classes must be aware of it.
  */
 class collection_of_variables
@@ -241,9 +249,10 @@ public:
 	class optimizer;
 
     /**
-    * An auxilliary class derived from a map<variable*,value*>.
-    * It is used to manipulate the queries.
-    * */
+     * \class query
+     * An auxilliary class derived from a map<variable*,value*>.
+     * It is used to manipulate the queries.
+     * */
     class query: public std::map<variable*, value*>
     {
 		private:
@@ -265,7 +274,9 @@ public:
 		bool get_equal(const query & q) const;
 	};
 
-	
+	/**
+     * \class value_or_something_else
+     */
 	class value_or_something_else
 	{
 		public:

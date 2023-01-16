@@ -1,0 +1,15 @@
+/**
+\page building_dorban_from_source Building dorban from source.
+
+Dorban is a demo based on svarog. It can be built from source as follows:
+
+\code
+./configure
+make
+sudo make install
+\endcode
+
+It requires svarog, gtkmm-3.0 (devel version) and a C++ compiler supporting at least C++98.
+
+*/
+ 

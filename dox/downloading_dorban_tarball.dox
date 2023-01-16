@@ -1,0 +1,30 @@
+/**
+\page downloading_dorban_tarball Downloading dorban tarball.
+
+\htmlonly
+<p>
+You may download the Dorban tarball from <a href="http://sourceforge.net/projects/dorban">http://sourceforge.net/projects/dorban</a>. 
+</p>
+<p>
+Dorban is hosted by SourceForge.net®. (SourceForge.net, Slashdot, freshmeat, and ThinkGeek are registered trademarks or trademarks of SourceForge, Inc., in the United States and other countries.)
+</p>
+\endhtmlonly
+
+Dorban tarball can be unpacked with the command:
+\code
+gunzip dorban-0.0.2.tar.gz
+\endcode
+
+It will produce a file dorban-0.0.2.tar, that should be untared with the command:
+\code
+tar -xvf dorban-0.0.2.tar
+\endcode
+
+Then you should enter the directory dorban-0.0.2 and follow the instructions from 
+\htmlonly 
+<a href="building_dorban_from_source.html">building_dorban_from_source</a>
+\endhtmlonly
+
+
+
+*/

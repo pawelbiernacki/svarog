@@ -1,0 +1,25 @@
+/**
+\page using_the_demo Using the demo.
+
+Dorban (the character) does not see the vampire unless he is in the same city. The user knows immediately in which city the vampire is, because he can see it. Dorban will need to investigate all the cities (or in fact maximally only four of them) in order to know where the vampire is. I said only four of them because if he does not meet the vampire in four cities then he knows the vampire must be in the remaining fifth city.
+
+When Dorban meets Pregor before he meets the vampire then Dorban asks Pregor to accompany him. Pregor can accept the request. From now on the user should choose the option "follow orders" to do what Dorban wants him to. Choosing any other option means Pregor quits Dorban. Dorban will constantly ask Pregor to accompany him, unless Pregor dies. If Pregor dies Dorban does not expect him to resurrect and attacks the vampire on his own.
+
+If you start Dorban (the application) from a shell window please observe the text output. In particular watch the "beliefs" of Dorban. Initially he may not know where Pregor is or/and where the vampire is. He does not know whether Pregor is alive (unless he can see him).
+
+Try to "do nothing" (it is a menu item) initially and see what happens. Observe Dorban looking for Pregor and for the vampire.
+
+If Dorban found Pregor and you don't want to follow him then die and see what happens. Once he knows Pregor is dead then he will try to figure out where the vampire is and attack him on his own. He will not expect Pregor to resurrect. Although Pregor can resurrect. 
+
+
+Dorban (the character) can see the following input signals:
+
+    - Whether Dorban has won the recent fight? If there has not been any fight recently then this signal is set to "none".
+    - Where is Dorban? (The city he is currently in).
+    - The information whether he can see Pregor. He can only see Pregor if they are both in the same city.
+    - The information whether Pregor is seen to be alive. He can only see it if he can see Pregor, otherwise this signal is set to "none". This signal means "I see Pregor to be alive", but it does not mean that Pregor is really alive at the moment (say if Pregor is somewhere else).
+    - The information whether he can see the vampire. He can only see the vampire if they are both in the same city.
+    - The information whether Pregor is following him. It cannot be true if Pregor is somewhere else.
+
+If you know the Svarog language take a look at the input variables in the dorban-0.0.2/svarog/dorban.svarog specification. 
+*/

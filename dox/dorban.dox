@@ -1,0 +1,24 @@
+/**
+\page dorban Dorban
+
+- \subpage downloading_dorban_tarball 
+- \subpage building_dorban_from_source 
+- \subpage running_dorban 
+- \subpage using_the_demo 
+
+\image html Dorban1.png
+
+Dorban is a demo for the svarog library.
+
+Dorban requires Svarog. It is following the pattern known from the Perkun Wars, but there is only one character controlled by Svarog in it - a character named Dorban. The user controls Pregor. The objective is to kill the vampire. At present the vampire cannot really be killed (but Dorban does not know that). Dorban will usually try to convince Pregor to accompany him (the user is free to decline).
+
+When accepted the Dorban's offer (to accompany him) use the menu item "follow orders" to actually follow his orders. The user is always free to do something else which means he would quit Dorban (the character). Dorban can always see whether Pregor follows him. He can always see also whether Pregor is alive (provided he can see Pregor).
+
+Pregor can die and resurrect - this ability can be used to test Dorban's behaviour. Dorban will try to figure out where is the vampire and attack him, if possible with the help of Pregor. Once he sees the Pregor dead Dorban will attack the vampire on his own.
+
+When Pregor is dead he can only "do nothing" (it is a menu item) or "resurrect".
+
+You can click on a city to go to it. You are not limited to the cities connected by edges with the city you are currently in. But this ability is available for Pregor only. Dorban will observe the structure of the graph.
+
+
+*/

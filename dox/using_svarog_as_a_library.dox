@@ -1,0 +1,28 @@
+/**
+\page using_svarog_as_a_library Using svarog as a library in your own projects.
+
+If you use autotools your configure.ac file should contain the following line:
+
+\code
+PKG_CHECK_MODULES([SVAROG], [libsvarog >= 0.0.8])
+\endcode
+
+Let's assume your sources are in the "src" directory and you build a program "example". Then in src/Makefile.am there should be the code: 
+
+\code
+AM_CXXFLAGS = @CXXFLAGS@ @SVAROG_CFLAGS@ 
+
+example_LDADD = @LIBS@ @SVAROG_LIBS@
+\endcode
+
+This code includes both the compilation flags for svarog (@SVAROG_CFLAGS@) as well as the svarog libraries (@SVAROG_LIBS@). 
+
+The prefered way to use perkun is to create pipes and then to fork so that the child process can instantiate a class inherited from svarog::optimizer. This inherited class should speak through the pipes with the parent, obtain the input through a redefined get_input function, and execute the actions through a redefined execute function. 
+
+There is an example application demonstrating this technique, called 
+\htmlonly
+<a href="dorban.html">Dorban</a>
+\endhtmlonly
+
+*/
+ 

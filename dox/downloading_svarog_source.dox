@@ -1,0 +1,17 @@
+/**
+\page downloading_svarog_source Downloading svarog source
+
+It may be downloaded from 
+\htmlonly
+<a href="https://github.com/pawelbiernacki/svarog">https://github.com/pawelbiernacki/svarog</a>:
+\endhtmlonly
+\code
+git clone https://github.com/pawelbiernacki/svarog.git
+\endcode
+
+Then you should enter the directory svarog and follow the instructions from 
+\htmlonly 
+<a href="building_svarog_from_source.html">building_svarog_from_source</a>
+\endhtmlonly
+
+*/
